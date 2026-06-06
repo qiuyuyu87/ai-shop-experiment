@@ -2,28 +2,457 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>AI购物助手实验</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI购物助手 - 实验原型 V2</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, "PingFang SC", sans-serif; }
-body { background: #F3F4F6; padding: 40px 20px; }
-.container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-h1 { color: #1F2937; font-size: 24px; margin-bottom: 8px; text-align: center; }
-.subtitle { color: #6B7280; font-size: 14px; text-align: center; margin-bottom: 32px; }
-.success { text-align: center; padding: 40px; color: #10B981; font-size: 20px; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+body { background: #F3F4F6; color: #1F2937; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; min-height: 100vh; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+
+.selector { padding: 60px 30px; text-align: center; }
+.selector h1 { font-size: 24px; margin-bottom: 12px; color: #1F2937; }
+.selector .subtitle { font-size: 14px; color: #6B7280; margin-bottom: 40px; }
+.selector .group-btn { display: block; width: 100%; padding: 20px; margin-bottom: 12px; border: 2px solid #E5E7EB; border-radius: 12px; background: white; cursor: pointer; transition: all 0.2s; text-align: left; }
+.selector .group-btn:hover { border-color: #3B82F6; background: #EFF6FF; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); }
+.selector .group-btn .label { font-size: 12px; color: #6B7280; margin-bottom: 4px; }
+.selector .group-btn .name { font-size: 16px; font-weight: 600; color: #1F2937; }
+.selector .group-btn .desc { font-size: 12px; color: #9CA3AF; margin-top: 4px; }
+.selector .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 6px; }
+.badge.high { background: #DBEAFE; color: #1E40AF; }
+.badge.low { background: #D1FAE5; color: #065F46; }
+.badge.search { background: #FEF3C7; color: #92400E; }
+.badge.exp { background: #FCE7F3; color: #9D174D; }
+
+.header { background: #3B82F6; color: white; padding: 16px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
+.header .logo { font-size: 24px; }
+.header .title { font-size: 18px; font-weight: 600; }
+.header .subtitle { font-size: 12px; opacity: 0.85; margin-left: auto; }
+.header .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; }
+
+.task-card { background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 16px 20px; margin: 16px 20px; border-radius: 6px; }
+.task-card .label { font-size: 12px; color: #92400E; font-weight: 600; margin-bottom: 6px; }
+.task-card .content { font-size: 14px; color: #78350F; line-height: 1.7; }
+
+.intro-screen { padding: 40px 20px; text-align: center; }
+.intro-screen .icon { font-size: 56px; margin-bottom: 20px; }
+.intro-screen h2 { font-size: 20px; margin-bottom: 16px; color: #1F2937; }
+.intro-screen p { font-size: 15px; color: #4B5563; margin-bottom: 24px; line-height: 1.8; }
+.intro-screen .task-preview { background: #F9FAFB; padding: 16px; border-radius: 8px; margin-bottom: 24px; text-align: left; }
+.btn-primary { background: #3B82F6; color: white; border: none; padding: 12px 32px; border-radius: 8px; font-size: 15px; cursor: pointer; transition: background 0.2s; }
+.btn-primary:hover { background: #2563EB; }
+.btn-primary:disabled { background: #9CA3AF; cursor: not-allowed; }
+
+.chat-area { padding: 20px; min-height: 400px; }
+.message { margin-bottom: 16px; display: flex; gap: 10px; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.message.user { flex-direction: row-reverse; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
+.avatar.ai { background: #DBEAFE; color: #3B82F6; }
+.avatar.user { background: #E5E7EB; color: #6B7280; }
+.bubble { max-width: 78%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.6; }
+.bubble.ai { background: #F3F4F6; color: #1F2937; }
+.bubble.user { background: #3B82F6; color: white; }
+.bubble.ai-full { max-width: 90%; background: white; border: 1px solid #E5E7EB; }
+
+.thinking { background: #F3F4F6; padding: 14px 16px; border-radius: 12px; max-width: 78%; }
+.thinking .title { font-size: 13px; color: #6B7280; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.thinking .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #3B82F6; animation: pulse 1.4s infinite; }
+.thinking .dot:nth-child(2) { animation-delay: 0.2s; }
+.thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse { 0%, 60%, 100% { opacity: 0.3; } 30% { opacity: 1; } }
+.thinking .step { font-size: 13px; color: #4B5563; padding: 5px 0; opacity: 0; animation: fadeInStep 0.5s forwards; }
+.thinking .step.s1 { animation-delay: 0.5s; }
+.thinking .step.s2 { animation-delay: 1.3s; }
+.thinking .step.s3 { animation-delay: 2.1s; }
+.thinking .step.s4 { animation-delay: 2.9s; }
+@keyframes fadeInStep { to { opacity: 1; } }
+
+.analysis-report { background: linear-gradient(135deg, #EFF6FF 0%, white 100%); border: 1px solid #BFDBFE; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+.analysis-report .report-title { font-size: 14px; font-weight: 600; color: #1E40AF; margin-bottom: 12px; }
+.analysis-report .section { margin-bottom: 14px; }
+.analysis-report .section:last-child { margin-bottom: 0; }
+.analysis-report .section-title { font-size: 12px; font-weight: 600; color: #1F2937; margin-bottom: 6px; }
+.analysis-report .section-content { font-size: 12.5px; color: #4B5563; line-height: 1.7; padding-left: 4px; }
+.analysis-report .step-item { padding: 3px 0; }
+.analysis-report .step-num { color: #3B82F6; font-weight: 600; margin-right: 4px; }
+.analysis-report .arrow { color: #9CA3AF; margin: 0 4px; }
+
+.score-list { background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px 14px; margin-top: 8px; }
+.score-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; font-size: 13px; border-bottom: 1px dashed #F3F4F6; }
+.score-item:last-child { border-bottom: none; }
+.score-item.selected { font-weight: 600; color: #1E40AF; }
+.score-item .rank { color: #6B7280; margin-right: 8px; font-size: 12px; }
+.score-item .score { color: #3B82F6; font-weight: 600; }
+.score-item .selected-badge { background: #3B82F6; color: white; padding: 1px 6px; border-radius: 3px; font-size: 10px; margin-left: 6px; }
+
+.product-card { background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 14px; margin-bottom: 12px; transition: all 0.2s; }
+.product-card:hover { border-color: #3B82F6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1); }
+.product-card.recommended { border: 2px solid #3B82F6; background: linear-gradient(135deg, #EFF6FF 0%, white 100%); }
+.product-card .tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+.product-card .tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: #FEF3C7; color: #92400E; }
+.product-card .tag.flagship { background: #DBEAFE; color: #1E40AF; }
+.product-card .header-row { display: flex; gap: 12px; margin-bottom: 10px; }
+.product-card .image { width: 80px; height: 80px; background: #F3F4F6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0; }
+.product-card .info { flex: 1; min-width: 0; }
+.product-card .name { font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 4px; line-height: 1.4; }
+.product-card .price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.product-card .price { font-size: 18px; color: #DC2626; font-weight: 700; }
+.product-card .price-old { font-size: 12px; color: #9CA3AF; text-decoration: line-through; }
+.product-card .promo { display: inline-block; font-size: 10px; padding: 1px 5px; background: #FEE2E2; color: #991B1B; border-radius: 3px; }
+.product-card .meta { font-size: 11px; color: #6B7280; }
+.product-card .specs-table { background: #F9FAFB; padding: 10px; border-radius: 6px; margin-top: 10px; }
+.product-card .specs-table .spec-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; }
+.product-card .specs-table .spec-label { color: #6B7280; }
+.product-card .specs-table .spec-value { color: #1F2937; font-weight: 500; }
+.product-card .review-summary { background: #FFFBEB; border-left: 3px solid #F59E0B; padding: 8px 10px; margin-top: 10px; font-size: 12px; color: #78350F; border-radius: 0 6px 6px 0; }
+.product-card .review-summary .label { font-weight: 600; margin-right: 4px; }
+.product-card .reason { font-size: 12.5px; color: #1E40AF; background: #EFF6FF; padding: 10px; border-radius: 6px; margin-top: 10px; line-height: 1.6; }
+.product-card .reason .label { font-weight: 600; }
+.product-card .select-btn { width: 100%; margin-top: 12px; background: white; color: #3B82F6; border: 1.5px solid #3B82F6; padding: 9px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+.product-card .select-btn:hover { background: #3B82F6; color: white; }
+
+.compare-table { background: white; border: 1px solid #E5E7EB; border-radius: 10px; overflow-x: auto; margin-bottom: 12px; }
+.compare-table table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 600px; }
+.compare-table th { background: #F9FAFB; padding: 10px 8px; text-align: center; font-weight: 600; color: #374151; border-bottom: 1px solid #E5E7EB; font-size: 11px; }
+.compare-table td { padding: 10px 8px; text-align: center; border-bottom: 1px solid #F3F4F6; color: #1F2937; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table .product-name { font-weight: 600; text-align: left; }
+.compare-table .price { color: #DC2626; font-weight: 600; }
+
+.confirm-area { padding: 16px 20px; background: #F9FAFB; border-top: 1px solid #E5E7EB; position: sticky; bottom: 0; }
+.confirm-btn-group { display: flex; gap: 10px; }
+.confirm-btn { flex: 1; background: #3B82F6; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.confirm-btn:hover:not(:disabled) { background: #2563EB; }
+.confirm-btn:disabled { background: #9CA3AF; cursor: not-allowed; }
+.detail-btn { background: white; color: #3B82F6; border: 1.5px solid #3B82F6; padding: 14px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+.detail-btn:hover { background: #EFF6FF; }
+.status-hint { text-align: center; font-size: 12px; color: #6B7280; margin-top: 8px; min-height: 18px; }
+
+.detail-modal-content { max-width: 600px; max-height: 80vh; overflow-y: auto; text-align: left; padding: 24px; }
+.detail-modal-content h3 { font-size: 18px; margin-bottom: 16px; color: #1E40AF; }
+.detail-modal-content .detail-section { margin-bottom: 18px; }
+.detail-modal-content .detail-section .title { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #1F2937; }
+.detail-modal-content .detail-section .content { font-size: 13px; color: #4B5563; line-height: 1.7; padding-left: 8px; }
+.detail-modal-content .close-btn { background: #3B82F6; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; margin-top: 8px; }
+.excluded-list { background: #FEF2F2; border-left: 3px solid #EF4444; padding: 10px 12px; border-radius: 0 6px 6px 0; margin: 8px 0; }
+.excluded-item { font-size: 12px; color: #991B1B; padding: 3px 0; }
+
+.suggested-questions { background: #F9FAFB; padding: 14px; border-radius: 8px; margin-bottom: 12px; }
+.suggested-questions .label { font-size: 13px; color: #6B7280; margin-bottom: 8px; }
+.suggested-questions .q-btn { display: inline-block; background: white; border: 1px solid #D1D5DB; color: #374151; padding: 8px 14px; border-radius: 20px; margin: 4px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.suggested-questions .q-btn:hover:not(:disabled) { background: #3B82F6; color: white; border-color: #3B82F6; }
+.suggested-questions .q-btn:disabled { background: #E5E7EB; color: #9CA3AF; cursor: not-allowed; }
+
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+.modal-overlay.active { display: flex; }
+.modal { background: white; border-radius: 12px; padding: 40px 32px; text-align: center; max-width: 380px; animation: scaleIn 0.3s; }
+@keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal .icon { font-size: 48px; margin-bottom: 16px; }
+.modal .title { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #1F2937; }
+.modal .message { font-size: 14px; color: #6B7280; line-height: 1.7; margin-bottom: 20px; }
+.modal .return-btn { background: #3B82F6; color: white; border: none; padding: 10px 28px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+
+.hidden { display: none !important; }
+.debug-info { position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 6px 10px; border-radius: 4px; font-size: 11px; }
 </style>
 </head>
 <body>
 <div class="container">
+<div id="selectorScreen" class="selector">
 <h1>🤖 AI购物助手实验原型</h1>
-<div class="subtitle">测试页面 - 部署成功 ✓</div>
-<div class="success">
-✅ 恭喜！GitHub Pages 部署成功！<br>
-<span style="font-size:14px; color:#6B7280; margin-top:12px; display:block;">
-如果您能看到此页面，说明部署正常。<br>
-我们将继续部署完整版本。
-</span>
+<div class="subtitle">请选择要体验的实验组（共4组）</div>
+<button class="group-btn" onclick="selectGroup('high-search')">
+<div class="label"><span class="badge high">高自主性</span><span class="badge search">搜索品</span></div>
+<div class="name">实验组1：智能购物代理 + 蓝牙耳机</div>
+<div class="desc">AI替您完成决策 · 推荐1款最优解</div>
+</button>
+<button class="group-btn" onclick="selectGroup('low-search')">
+<div class="label"><span class="badge low">低自主性</span><span class="badge search">搜索品</span></div>
+<div class="name">实验组2：购物信息助手 + 蓝牙耳机</div>
+<div class="desc">AI辅助您决策 · 提供5款候选对比</div>
+</button>
+<button class="group-btn" onclick="selectGroup('high-exp')">
+<div class="label"><span class="badge high">高自主性</span><span class="badge exp">体验品</span></div>
+<div class="name">实验组3：智能购物代理 + 香水</div>
+<div class="desc">AI替您完成决策 · 推荐1款最优解</div>
+</button>
+<button class="group-btn" onclick="selectGroup('low-exp')">
+<div class="label"><span class="badge low">低自主性</span><span class="badge exp">体验品</span></div>
+<div class="name">实验组4：购物信息助手 + 香水</div>
+<div class="desc">AI辅助您决策 · 提供5款候选对比</div>
+</button>
+</div>
+
+<div id="experimentScreen" class="hidden">
+<div class="header">
+<span class="logo">🤖</span>
+<span class="title">AI购物助手</span>
+<span class="subtitle" id="modeLabel"></span>
+<button class="back-btn" onclick="backToSelector()">← 返回选择</button>
+</div>
+<div id="introContent" class="intro-screen">
+<div class="icon">🛍️</div>
+<h2 id="introTitle"></h2>
+<p id="introText"></p>
+<div class="task-preview">
+<div style="font-size: 12px; color: #92400E; font-weight: 600; margin-bottom: 6px;">📖 您的购物任务</div>
+<div id="taskText" style="font-size: 14px; color: #1F2937;"></div>
+</div>
+<button class="btn-primary" onclick="startExperiment()">开始购物体验</button>
+</div>
+<div id="mainContent" class="hidden">
+<div class="task-card">
+<div class="label">📖 您的购物任务</div>
+<div class="content" id="taskCardText"></div>
+</div>
+<div class="chat-area" id="chatArea"></div>
+<div id="confirmArea"></div>
 </div>
 </div>
+
+<div class="modal-overlay" id="detailModal">
+<div class="modal detail-modal-content">
+<h3>📊 AI详细决策分析</h3>
+<div id="detailContent"></div>
+<button class="close-btn" onclick="closeDetailModal()">我已了解</button>
+</div>
+</div>
+
+<div class="modal-overlay" id="modal1">
+<div class="modal">
+<div class="icon">✅</div>
+<div class="title" id="modal1Title"></div>
+<div class="message" id="modal1Message"></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modal2">
+<div class="modal">
+<div class="icon">🎉</div>
+<div class="title">体验完成</div>
+<div class="message" id="modal2Message"></div>
+<button class="return-btn" onclick="returnToSurvey()">返回问卷 →</button>
+</div>
+</div>
+</div>
+
+<div class="debug-info" id="debugInfo">未选择分组</div>
+
+<script>
+const CONFIG = {
+'high-search': { autonomy: 'high', product: 'search', minStayTime: 20, introTitle: '欢迎使用AI智能购物助手', introText: '本助手将<strong>代您完成</strong>商品的综合分析、筛选与决策。您只需确认结果即可。', modeLabel: '- 智能购物代理 -', taskText: '您正在为日常通勤+周末运动场景挑选一副蓝牙耳机，预算约300元。请使用AI购物助手完成本次购物。', userMsg: '我想买一副蓝牙耳机，预算300元，用于通勤和运动' },
+'low-search': { autonomy: 'low', product: 'search', minStayTime: 45, introTitle: '欢迎使用AI购物信息助手', introText: '本助手将<strong>协助您完成</strong>商品的信息整理与对比。最终选择由您来决定。', modeLabel: '- 购物信息助手 -', taskText: '您正在为日常通勤+周末运动场景挑选一副蓝牙耳机，预算约300元。请使用AI购物助手完成本次购物。', userMsg: '我想买一副蓝牙耳机，预算300元，用于通勤和运动' },
+'high-exp': { autonomy: 'high', product: 'experience', minStayTime: 20, introTitle: '欢迎使用AI智能购物助手', introText: '本助手将<strong>代您完成</strong>商品的综合分析、筛选与决策。您只需确认结果即可。', modeLabel: '- 智能购物代理 -', taskText: '您正在为日常使用挑选一瓶香水，预算约300元。请使用AI购物助手完成本次购物。', userMsg: '我想买一瓶香水，预算300元，用于日常使用' },
+'low-exp': { autonomy: 'low', product: 'experience', minStayTime: 45, introTitle: '欢迎使用AI购物信息助手', introText: '本助手将<strong>协助您完成</strong>商品的信息整理与对比。最终选择由您来决定。', modeLabel: '- 购物信息助手 -', taskText: '您正在为日常使用挑选一瓶香水，预算约300元。请使用AI购物助手完成本次购物。', userMsg: '我想买一瓶香水，预算300元，用于日常使用' }
+};
+
+const PRODUCTS = {
+search: [
+{ id: 'p1', emoji: '🎧', name: 'TechNova X3 Sport 真无线运动耳机', price: 329, priceOld: 399, score: 92, rating: 4.8, reviewLevel: '好评率 96%', salesLevel: '近期热销', tags: ['官方旗舰', '运动防汗', '7天无理由'], specs: { '蓝牙版本': '5.3', '续航时长': '28小时', '防水等级': 'IPX5', '主动降噪': '支持(-35dB)', '单耳重量': '4.5g', '充电方式': 'Type-C + 无线' }, reviewSummary: '用户最常提到：佩戴稳固、运动不掉、降噪效果好', reason: '综合性价比、运动场景适配度、用户口碑三项核心维度均表现最优。特别是防水(IPX5)+人体工学设计+长续航(28小时)的组合，是当前预算下的最优解。' },
+{ id: 'p2', emoji: '🎧', name: 'SoundPro M2 Pro 真无线降噪耳机', price: 299, priceOld: 349, score: 87, rating: 4.7, reviewLevel: '好评率 94%', salesLevel: '人气推荐', tags: ['Hi-Res金标', '深度降噪'], specs: { '蓝牙版本': '5.3', '续航时长': '24小时', '防水等级': 'IPX4', '主动降噪': '支持(-42dB)', '单耳重量': '4.8g', '充电方式': 'Type-C' }, reviewSummary: '用户最常提到：音质清晰、降噪强、低音表现优秀', reason: '音质表现为5款中最佳，深度降噪适合通勤场景。但运动稳固性略弱。' },
+{ id: 'p3', emoji: '🎧', name: 'AuraQ E1 Active 经典款', price: 289, priceOld: 329, score: 85, rating: 4.6, reviewLevel: '好评率 93%', salesLevel: '经典畅销', tags: ['综合均衡', '高性价比'], specs: { '蓝牙版本': '5.2', '续航时长': '26小时', '防水等级': 'IPX5', '主动降噪': '支持(-30dB)', '单耳重量': '4.6g', '充电方式': 'Type-C' }, reviewSummary: '用户最常提到：综合表现均衡、性价比高、外观好看', reason: '综合表现均衡，无明显短板，是经典推荐款式。' },
+{ id: 'p4', emoji: '🎧', name: 'EchoBlu S5 入门款', price: 279, priceOld: 299, score: 82, rating: 4.5, reviewLevel: '好评率 91%', salesLevel: '基础款', tags: ['基础扎实', '价格亲民'], specs: { '蓝牙版本': '5.2', '续航时长': '22小时', '防水等级': 'IPX4', '主动降噪': '不支持', '单耳重量': '5.0g', '充电方式': 'Type-C' }, reviewSummary: '用户最常提到：连接稳定、续航够用、配色多', reason: '价格亲民，基础功能扎实，适合预算优先用户。' },
+{ id: 'p5', emoji: '🎧', name: 'Pulse Mini Air 轻量款', price: 259, priceOld: 279, score: 78, rating: 4.3, reviewLevel: '好评率 89%', salesLevel: '入门首选', tags: ['超轻量', '入门首选'], specs: { '蓝牙版本': '5.0', '续航时长': '20小时', '防水等级': 'IPX3', '主动降噪': '不支持', '单耳重量': '4.2g', '充电方式': 'Type-C' }, reviewSummary: '用户最常提到：佩戴轻、操作简单、适合新手', reason: '入门级选择，重量轻便，适合预算优先用户。' }
+],
+experience: [
+{ id: 'p1', emoji: '🌸', name: 'Lumière No.7 清新木质淡香水', price: 329, priceOld: 379, score: 91, rating: 4.8, reviewLevel: '好评率 95%', salesLevel: '近期热销', tags: ['官方旗舰', '四季百搭', '7天无理由'], specs: { '香调类型': '清新木质调', '前调': '佛手柑、柑橘', '中调': '茉莉、白茶', '后调': '雪松、檀香', '留香时长': '约8小时', '容量规格': '50ml EDP' }, reviewSummary: '用户最常提到：香味优雅不腻、留香持久、四季适用', reason: '前调清新、中调优雅、后调沉稳的层次变化，综合适配度最高。气质偏向温柔知性，适合日常通勤、约会、社交多种场景，是您当前需求下的最优解。' },
+{ id: 'p2', emoji: '🌷', name: 'Étoile Blanche 白色星辰花香水', price: 299, priceOld: 349, score: 87, rating: 4.7, reviewLevel: '好评率 94%', salesLevel: '人气推荐', tags: ['浪漫花香', '春夏首选'], specs: { '香调类型': '花果香调', '前调': '佛手柑、覆盆子', '中调': '玫瑰、牡丹', '后调': '麝香、檀香', '留香时长': '约7小时', '容量规格': '50ml EDP' }, reviewSummary: '用户最常提到：甜而不腻、女性化、约会神器', reason: '花果香调浪漫迷人，适合春夏季节及约会场景。' },
+{ id: 'p3', emoji: '🌹', name: 'Mémoire d\'Or 黄金记忆东方香水', price: 289, priceOld: 319, score: 84, rating: 4.6, reviewLevel: '好评率 92%', salesLevel: '秋冬经典', tags: ['东方神秘', '秋冬经典'], specs: { '香调类型': '东方调', '前调': '粉红胡椒、藏红花', '中调': '玫瑰、紫罗兰', '后调': '琥珀、香草', '留香时长': '约9小时', '容量规格': '50ml EDP' }, reviewSummary: '用户最常提到：温暖、神秘、有故事感', reason: '东方调温暖神秘，留香最长(9小时)，秋冬季节首选。' },
+{ id: 'p4', emoji: '🌊', name: 'Brise Marine 海风轻盈淡香水', price: 279, priceOld: 309, score: 81, rating: 4.5, reviewLevel: '好评率 90%', salesLevel: '清爽必备', tags: ['海洋清爽', '运动出街'], specs: { '香调类型': '海洋调', '前调': '海盐、佛手柑', '中调': '薄荷、白茶', '后调': '雪松、麝香', '留香时长': '约6小时', '容量规格': '50ml EDT' }, reviewSummary: '用户最常提到：清爽、不刺鼻、运动适用', reason: '海洋调清爽不腻，适合夏季及运动出街场景。' },
+{ id: 'p5', emoji: '🖤', name: 'Velours Noir 黑天鹅绒神秘香水', price: 259, priceOld: 299, score: 77, rating: 4.3, reviewLevel: '好评率 88%', salesLevel: '个性首选', tags: ['独特个性', '小众首选'], specs: { '香调类型': '神秘调', '前调': '黑胡椒、佛手柑', '中调': '皮革、烟草', '后调': '檀香、麝香', '留香时长': '约8小时', '容量规格': '50ml EDP' }, reviewSummary: '用户最常提到：独特、有辨识度、不撞香', reason: '神秘个性，辨识度高，适合追求独特表达的用户。' }
+]
+};
+
+const PRESET_QA = {
+search: [
+{ q: '哪款佩戴最稳定？', a: '关于佩戴稳定性的数据对比：<br><br>✓ <b>TechNova X3 Sport</b>：稳固性最优，运动中佩戴评价4.5/5<br>✓ <b>AuraQ E1 Active</b>：稳固性优秀，常规运动适用4.4/5<br>✓ 其余三款为常规入耳设计，适合日常使用<br><br>如果您的运动强度较高（跑步、健身），建议优先考虑前两款。' },
+{ q: '哪款续航最长？', a: '5款产品的续航时长对比：<br><br>1. <b>TechNova X3 Sport</b>：28小时（最长）<br>2. AuraQ E1 Active：26小时<br>3. SoundPro M2 Pro：24小时<br>4. EchoBlu S5：22小时<br>5. Pulse Mini Air：20小时<br><br>如果您经常长时间使用且不便频繁充电，建议优先选择续航较长的款式。' },
+{ q: '哪款性价比最高？', a: '从价格与综合性能的比例来看：<br><br>✓ <b>EchoBlu S5</b>（¥279）：基础功能扎实，价格亲民<br>✓ <b>Pulse Mini Air</b>（¥259）：入门首选，超轻量<br>✓ <b>TechNova X3 Sport</b>（¥329）：综合表现最强，单价稍高但功能全面<br><br>具体哪款更适合您，取决于您对"性能"与"价格"的权衡偏好。' },
+{ q: '这几款的主要区别是什么？', a: '5款产品的核心差异化定位：<br><br>• <b>TechNova X3 Sport</b>：运动场景综合最强<br>• <b>SoundPro M2 Pro</b>：音质与降噪表现最佳<br>• <b>AuraQ E1 Active</b>：综合均衡的经典款<br>• <b>EchoBlu S5</b>：性价比之选<br>• <b>Pulse Mini Air</b>：入门级超轻量款<br><br>请根据您最看重的维度（音质/运动/价格/续航）做选择。' }
+],
+experience: [
+{ q: '哪款香调最清新？', a: '香调清新度对比：<br><br>✓ <b>Brise Marine</b>（海洋调）：清爽感最强，海盐+薄荷前调<br>✓ <b>Lumière No.7</b>（清新木质）：柑橘前调+白茶中调<br>✓ <b>Étoile Blanche</b>（花果香）：覆盆子+佛手柑前调<br><br>清新型香水更适合春夏季节、日常通勤及运动场景。' },
+{ q: '哪款留香时间最长？', a: '5款香水的留香时长对比：<br><br>1. <b>Mémoire d\'Or</b>：约9小时（最长）<br>2. Lumière No.7：约8小时<br>3. Velours Noir：约8小时<br>4. Étoile Blanche：约7小时<br>5. Brise Marine：约6小时<br><br>留香时间长的香水更适合全天使用，不需要频繁补喷。' },
+{ q: '哪款适合秋冬使用？', a: '秋冬季节适配性推荐：<br><br>✓ <b>Mémoire d\'Or</b>（东方调）：温暖神秘，琥珀+香草后调<br>✓ <b>Velours Noir</b>（神秘调）：沉稳个性，皮革+檀香<br>✓ <b>Lumière No.7</b>（木质调）：四季皆宜，沉稳层次<br><br>秋冬季节适合较为浓郁、温暖的香调类型。' },
+{ q: '这几款的主要风格区别？', a: '5款香水的风格定位：<br><br>• <b>Lumière No.7</b>：优雅木质，四季百搭<br>• <b>Étoile Blanche</b>：浪漫花果，春夏甜美<br>• <b>Mémoire d\'Or</b>：神秘东方，秋冬经典<br>• <b>Brise Marine</b>：清爽海洋，运动出街<br>• <b>Velours Noir</b>：个性神秘，独特表达<br><br>请根据您的个人气质与使用场景偏好做选择。' }
+]
+};
+
+function getAnalysisReport(autonomy, product) {
+const isHigh = autonomy === 'high';
+const isSearch = product === 'search';
+if (isHigh && isSearch) {
+return `<div class="analysis-report"><div class="report-title">🤖 AI智能决策报告</div><div class="section"><div class="section-title">📋 您的核心需求</div><div class="section-content">✓ 蓝牙耳机<br>✓ 预算约300元<br>✓ 通勤 + 运动场景</div></div><div class="section"><div class="section-title">🔍 决策推理过程</div><div class="section-content"><div class="step-item"><span class="step-num">Step 1</span>从全网2,341款耳机筛选预算符合的286款</div><div class="step-item"><span class="step-num">Step 2</span>筛选支持运动场景（防水+稳固性）<span class="arrow">→</span>剩余47款</div><div class="step-item"><span class="step-num">Step 3</span>加入通勤场景的降噪、续航维度<span class="arrow">→</span>剩余12款</div><div class="step-item"><span class="step-num">Step 4</span>综合用户口碑(30%)、性价比(30%)、场景适配(40%)排序</div></div></div><div class="section"><div class="section-title">📊 Top 5 综合评分排序</div><div class="score-list">${PRODUCTS.search.map((p, i) => `<div class="score-item ${i === 0 ? 'selected' : ''}"><span><span class="rank">No.${i+1}</span>${p.name.split(' ').slice(0, 2).join(' ')}</span><span><span class="score">${p.score}分</span>${i === 0 ? '<span class="selected-badge">已选</span>' : ''}</span></div>`).join('')}</div></div></div>`;
+}
+if (!isHigh && isSearch) {
+return `<div class="analysis-report"><div class="report-title">🤖 AI信息整理报告</div><div class="section"><div class="section-title">📋 您的核心需求</div><div class="section-content">✓ 蓝牙耳机<br>✓ 预算约300元<br>✓ 通勤 + 运动场景</div></div><div class="section"><div class="section-title">🔍 信息整理过程</div><div class="section-content"><div class="step-item"><span class="step-num">Step 1</span>从全网筛选符合预算的286款产品</div><div class="step-item"><span class="step-num">Step 2</span>根据运动+通勤场景缩小至47款</div><div class="step-item"><span class="step-num">Step 3</span>为您挑选评分最高的5款进行详细对比</div><div class="step-item"><span class="step-num">Step 4</span>汇总参数、评价、销量等关键信息</div></div></div><div class="section"><div class="section-title">💡 选购建议</div><div class="section-content">您可以根据自身偏好，重点关注以下维度：<br>① <b>防水等级</b>（运动场景重要）<br>② <b>续航时长</b>（长时间使用重要）<br>③ <b>佩戴稳固性</b>（运动稳固性重要）<br><br>请基于以下5款候选商品做出您的选择 ⬇️</div></div></div>`;
+}
+if (isHigh && !isSearch) {
+return `<div class="analysis-report"><div class="report-title">🤖 AI智能决策报告</div><div class="section"><div class="section-title">📋 您的核心需求</div><div class="section-content">✓ 香水产品<br>✓ 预算约300元<br>✓ 日常使用场景</div></div><div class="section"><div class="section-title">🔍 决策推理过程</div><div class="section-content"><div class="step-item"><span class="step-num">Step 1</span>从全网1,892款香水筛选预算符合的218款</div><div class="step-item"><span class="step-num">Step 2</span>筛选日常通勤适用的香调类型<span class="arrow">→</span>剩余89款</div><div class="step-item"><span class="step-num">Step 3</span>加入留香时长、口碑维度评估<span class="arrow">→</span>剩余15款</div><div class="step-item"><span class="step-num">Step 4</span>综合用户口碑(30%)、场景适配(35%)、综合喜爱度(35%)排序</div></div></div><div class="section"><div class="section-title">📊 Top 5 综合评分排序</div><div class="score-list">${PRODUCTS.experience.map((p, i) => `<div class="score-item ${i === 0 ? 'selected' : ''}"><span><span class="rank">No.${i+1}</span>${p.name.split(' ').slice(0, 2).join(' ')}</span><span><span class="score">${p.score}分</span>${i === 0 ? '<span class="selected-badge">已选</span>' : ''}</span></div>`).join('')}</div></div></div>`;
+}
+return `<div class="analysis-report"><div class="report-title">🤖 AI信息整理报告</div><div class="section"><div class="section-title">📋 您的核心需求</div><div class="section-content">✓ 香水产品<br>✓ 预算约300元<br>✓ 日常使用场景</div></div><div class="section"><div class="section-title">🔍 信息整理过程</div><div class="section-content"><div class="step-item"><span class="step-num">Step 1</span>从全网筛选符合预算的218款香水</div><div class="step-item"><span class="step-num">Step 2</span>根据日常使用场景缩小至89款</div><div class="step-item"><span class="step-num">Step 3</span>为您挑选评分最高的5款进行详细介绍</div><div class="step-item"><span class="step-num">Step 4</span>汇总香调、留香、评价等关键信息</div></div></div><div class="section"><div class="section-title">💡 选购建议</div><div class="section-content">您可以根据自身偏好，重点关注以下维度：<br>① <b>香调风格</b>（个人偏好关键）<br>② <b>留香时长</b>（使用频率相关）<br>③ <b>季节适配</b>（当前季节适合度）<br><br>请基于以下5款候选商品做出您的选择 ⬇️</div></div></div>`;
+}
+
+let currentGroup = '', config = null, startTime = null, askedQuestions = new Set(), hasSelected = false;
+
+function selectGroup(group) {
+currentGroup = group; config = CONFIG[group];
+document.getElementById('selectorScreen').classList.add('hidden');
+document.getElementById('experimentScreen').classList.remove('hidden');
+document.getElementById('introContent').classList.remove('hidden');
+document.getElementById('mainContent').classList.add('hidden');
+document.getElementById('modeLabel').innerText = config.modeLabel;
+document.getElementById('introTitle').innerText = config.introTitle;
+document.getElementById('introText').innerHTML = config.introText;
+document.getElementById('taskText').innerText = config.taskText;
+document.getElementById('taskCardText').innerText = config.taskText;
+document.getElementById('debugInfo').innerText = `当前分组: ${currentGroup}`;
+document.getElementById('chatArea').innerHTML = '';
+document.getElementById('confirmArea').innerHTML = '';
+askedQuestions.clear(); hasSelected = false; window.scrollTo(0, 0);
+}
+
+function backToSelector() {
+if (confirm('确认返回？当前体验进度将丢失。')) {
+document.getElementById('selectorScreen').classList.remove('hidden');
+document.getElementById('experimentScreen').classList.add('hidden');
+document.getElementById('debugInfo').innerText = '未选择分组';
+window.scrollTo(0, 0);
+}
+}
+
+function startExperiment() {
+document.getElementById('introContent').classList.add('hidden');
+document.getElementById('mainContent').classList.remove('hidden');
+startTime = Date.now();
+setTimeout(() => addUserMessage(config.userMsg), 500);
+setTimeout(() => showThinking(), 1500);
+setTimeout(() => showAIResponse(), 6500);
+}
+
+function addUserMessage(text) {
+document.getElementById('chatArea').insertAdjacentHTML('beforeend', `<div class="message user"><div class="avatar user">您</div><div class="bubble user">${text}</div></div>`);
+scrollToBottom();
+}
+
+function addAIMessage(html, fullWidth = false) {
+document.getElementById('chatArea').insertAdjacentHTML('beforeend', `<div class="message"><div class="avatar ai">🤖</div><div class="bubble ai ${fullWidth ? 'ai-full' : ''}">${html}</div></div>`);
+scrollToBottom();
+}
+
+function showThinking() {
+const isHigh = config.autonomy === 'high', isSearch = config.product === 'search';
+let steps;
+if (isHigh) steps = isSearch ? ['已基于您的场景需求分析', '已扫描全网2,341款产品', '已综合用户评价23,461条', '已完成多维度综合评估'] : ['已基于您的偏好分析', '已扫描全网1,892款产品', '已综合用户评价18,734条', '已完成香调与适配度评估'];
+else steps = isSearch ? ['已基于您的需求筛选', '已为您整理5款候选产品', '已汇总详细参数对比', '已汇总用户评价摘要'] : ['已基于您的需求筛选', '已为您整理5款候选香水', '已汇总香调与评价信息', '已整理详细产品信息'];
+const title = isHigh ? '正在为您智能匹配' : '正在为您整理候选商品';
+document.getElementById('chatArea').insertAdjacentHTML('beforeend', `<div class="message" id="thinkingMsg"><div class="avatar ai">🤖</div><div class="thinking"><div class="title">${title}<span class="dot"></span><span class="dot"></span><span class="dot"></span></div>${steps.map((s, i) => `<div class="step s${i+1}">✓ ${s}</div>`).join('')}</div></div>`);
+scrollToBottom();
+}
+
+function showAIResponse() {
+document.getElementById('thinkingMsg')?.remove();
+if (config.autonomy === 'high') showHighAutonomyResponse();
+else showLowAutonomyResponse();
+}
+
+function showHighAutonomyResponse() {
+const products = PRODUCTS[config.product], selected = products[0];
+addAIMessage(getAnalysisReport('high', config.product), true);
+setTimeout(() => {
+const productHtml = `基于综合分析，<b>已为您选定如下商品</b>：<div class="product-card recommended" style="margin-top: 10px;"><div class="tags">${selected.tags.map(t => `<span class="tag flagship">${t}</span>`).join('')}</div><div class="header-row"><div class="image">${selected.emoji}</div><div class="info"><div class="name">${selected.name}</div><div class="price-row"><span class="price">¥${selected.price}</span><span class="price-old">¥${selected.priceOld}</span><span class="promo">限时立减¥${selected.priceOld - selected.price}</span></div><div class="meta">⭐ ${selected.rating} · ${selected.reviewLevel} · ${selected.salesLevel}</div></div></div><div class="specs-table">${Object.entries(selected.specs).map(([k, v]) => `<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-value">${v}</span></div>`).join('')}</div><div class="review-summary"><span class="label">💬 评价摘要：</span>${selected.reviewSummary}</div><div class="reason"><span class="label">🎯 AI选定理由：</span>${selected.reason}</div></div>`;
+addAIMessage(productHtml, true);
+setTimeout(() => showConfirmButton(), 500);
+}, 800);
+}
+
+function showLowAutonomyResponse() {
+const products = PRODUCTS[config.product];
+addAIMessage(getAnalysisReport('low', config.product), true);
+setTimeout(() => {
+const isSearch = config.product === 'search';
+let tableHtml = isSearch ? `<div style="margin-bottom: 8px; font-weight: 600;">📊 5款产品参数对比</div><div class="compare-table"><table><thead><tr><th>产品</th><th>价格</th><th>续航</th><th>防水</th><th>降噪</th><th>口碑</th></tr></thead><tbody>${products.map(p => `<tr><td class="product-name">${p.emoji} ${p.name.split(' ').slice(0, 2).join(' ')}</td><td class="price">¥${p.price}</td><td>${p.specs['续航时长']}</td><td>${p.specs['防水等级']}</td><td>${p.specs['主动降噪'].includes('支持') ? '✓' : '✗'}</td><td>${p.rating}</td></tr>`).join('')}</tbody></table></div>` : `<div style="margin-bottom: 8px; font-weight: 600;">📊 5款香水核心对比</div><div class="compare-table"><table><thead><tr><th>产品</th><th>价格</th><th>香调</th><th>留香</th><th>容量</th><th>口碑</th></tr></thead><tbody>${products.map(p => `<tr><td class="product-name">${p.emoji} ${p.name.split(' ').slice(0, 2).join(' ')}</td><td class="price">¥${p.price}</td><td>${p.specs['香调类型']}</td><td>${p.specs['留香时长']}</td><td>${p.specs['容量规格']}</td><td>${p.rating}</td></tr>`).join('')}</tbody></table></div>`;
+addAIMessage(tableHtml, true);
+setTimeout(() => {
+const chat = document.getElementById('chatArea');
+products.forEach(p => {
+chat.insertAdjacentHTML('beforeend', `<div class="message"><div style="width: 36px; flex-shrink: 0;"></div><div style="flex: 1; max-width: calc(100% - 46px);"><div class="product-card"><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div><div class="header-row"><div class="image">${p.emoji}</div><div class="info"><div class="name">${p.name}</div><div class="price-row"><span class="price">¥${p.price}</span><span class="price-old">¥${p.priceOld}</span></div><div class="meta">⭐ ${p.rating} · ${p.reviewLevel} · ${p.salesLevel}</div></div></div><div class="specs-table">${Object.entries(p.specs).slice(0, 4).map(([k, v]) => `<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-value">${v}</span></div>`).join('')}</div><div class="review-summary"><span class="label">💬 评价：</span>${p.reviewSummary}</div><button class="select-btn" onclick="selectProduct('${p.id}', '${p.name}')">我选这款</button></div></div></div>`);
+});
+scrollToBottom();
+setTimeout(() => showPresetQuestions(), 500);
+}, 800);
+}, 800);
+}
+
+function showPresetQuestions() {
+const questions = PRESET_QA[config.product];
+document.getElementById('chatArea').insertAdjacentHTML('beforeend', `<div class="message"><div style="width: 36px; flex-shrink: 0;"></div><div style="flex: 1;"><div class="suggested-questions"><div class="label">💬 您也可以问我以下问题：</div>${questions.map((q, i) => `<button class="q-btn" onclick="askQuestion(${i})" id="qbtn-${i}">${q.q}</button>`).join('')}</div></div></div>`);
+scrollToBottom();
+}
+
+function askQuestion(idx) {
+const qa = PRESET_QA[config.product][idx];
+document.getElementById(`qbtn-${idx}`).disabled = true;
+askedQuestions.add(idx);
+addUserMessage(qa.q);
+setTimeout(() => addAIMessage(qa.a), 1000);
+}
+
+function selectProduct(id, name) {
+if (hasSelected) return;
+const elapsed = (Date.now() - startTime) / 1000;
+if (elapsed < config.minStayTime) { alert(`请先充分浏览各款产品信息后再做选择`); return; }
+hasSelected = true;
+showCompletionModal(name);
+}
+
+function showConfirmButton() {
+document.getElementById('confirmArea').innerHTML = `<div class="confirm-area"><div class="confirm-btn-group"><button class="confirm-btn" id="confirmBtn" onclick="confirmOrder()" disabled>✓ 确认下单</button><button class="detail-btn" onclick="showDetailModal()">📊 查看详细分析</button></div><div class="status-hint" id="statusHint">正在为您准备...</div></div>`;
+startCountdown();
+}
+
+function startCountdown() {
+const btn = document.getElementById('confirmBtn'), hint = document.getElementById('statusHint');
+const timer = setInterval(() => {
+const elapsed = (Date.now() - startTime) / 1000, remaining = config.minStayTime - elapsed;
+if (remaining <= 0) { btn.disabled = false; hint.innerText = '✓ 您可以确认下单'; hint.style.color = '#10B981'; clearInterval(timer); }
+else hint.innerText = '请先充分了解推荐信息...';
+}, 300);
+}
+
+function confirmOrder() {
+if (hasSelected) return;
+hasSelected = true;
+showCompletionModal(PRODUCTS[config.product][0].name);
+}
+
+function showDetailModal() {
+const products = PRODUCTS[config.product], isSearch = config.product === 'search';
+const html = `<div class="detail-section"><div class="title">📊 5款候选商品综合评分</div><div class="content">${products.map((p, i) => `<div style="padding: 4px 0;">No.${i+1} <b>${p.name.split(' ').slice(0, 2).join(' ')}</b> — ${p.score}分${i === 0 ? ' ⭐已选定' : ''}</div>`).join('')}</div></div><div class="detail-section"><div class="title">🎯 为什么选择 ${products[0].name.split(' ').slice(0, 2).join(' ')}</div><div class="content">${products[0].reason}</div></div><div class="detail-section"><div class="title">❌ 其他产品的不足</div><div class="excluded-list">${products.slice(1).map(p => `<div class="excluded-item">• <b>${p.name.split(' ').slice(0, 2).join(' ')}</b>：${p.reason.split('。')[0]}，综合评分${p.score}分，略逊于首选。</div>`).join('')}</div></div><div class="detail-section"><div class="title">💡 AI最终判断</div><div class="content">基于您"${isSearch ? '通勤+运动场景，预算300元' : '日常使用，预算300元'}"的需求，综合考量${isSearch ? '运动场景适配度、续航、用户口碑' : '香调适配度、留香时长、综合喜爱度'}三大核心维度，<b>${products[0].name.split(' ').slice(0, 2).join(' ')}</b> 在多项指标上显著领先，是当前最优选择。</div></div>`;
+document.getElementById('detailContent').innerHTML = html;
+document.getElementById('detailModal').classList.add('active');
+}
+
+function closeDetailModal() { document.getElementById('detailModal').classList.remove('active'); }
+
+function showCompletionModal(productName) {
+const isHigh = config.autonomy === 'high', elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+console.log('实验数据:', { group: currentGroup, duration: elapsed, selectedProduct: productName, questionsAsked: Array.from(askedQuestions) });
+document.getElementById('modal1Title').innerText = isHigh ? 'AI已为您完成购买决策' : '您已成功完成购买';
+document.getElementById('modal1Message').innerHTML = `已购买：<b>${productName}</b>`;
+document.getElementById('modal1').classList.add('active');
+setTimeout(() => {
+document.getElementById('modal1').classList.remove('active');
+document.getElementById('modal2Message').innerHTML = isHigh ? '感谢您体验AI智能购物助手<br>本次购物已<b>自动</b>完成<br>请返回问卷继续作答' : '感谢您使用AI购物信息助手<br>您的购买已完成<br>请返回问卷继续作答';
+document.getElementById('modal2').classList.add('active');
+}, 5000);
+}
+
+function returnToSurvey() {
+alert('演示模式：返回问卷\n\n实际部署时将跳转至问卷星链接\n当前分组：' + currentGroup);
+}
+
+function scrollToBottom() { setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 100); }
+</script>
 </body>
 </html>
-
