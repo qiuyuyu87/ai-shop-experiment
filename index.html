@@ -149,7 +149,8 @@ body { background: #F3F4F6; color: #1F2937; line-height: 1.6; }
 @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .modal .icon { font-size: 48px; margin-bottom: 16px; }
 .modal .title { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #1F2937; }
-.modal .message { font-size: 14px; color: #6B7280; line-height: 1.7; margin-bottom: 20px; }
+.modal .message { font-size: 14px; color: #6B7280; line-height: 1.7; margin-bottom: 20px; word-break: keep-all; white-space: normal; }
+.modal .message b { font-weight: 600; display: inline; white-space: nowrap; }
 .modal .return-btn { background: #3B82F6; color: white; border: none; padding: 10px 28px; border-radius: 8px; cursor: pointer; font-size: 14px; }
 
 .hidden { display: none !important; }
@@ -360,7 +361,7 @@ function showHighAutonomyResponse() {
 const products = PRODUCTS[config.product], selected = products[0];
 addAIMessage(getAnalysisReport('high', config.product), true);
 setTimeout(() => {
-const productHtml = `基于综合分析，<b>已为您选定如下商品</b>：<div class="product-card recommended" style="margin-top: 10px;"><div class="tags">${selected.tags.map(t => `<span class="tag flagship">${t}</span>`).join('')}</div><div class="header-row"><div class="image">${selected.emoji}</div><div class="info"><div class="name">${selected.name}</div><div class="price-row"><span class="price">¥${selected.price}</span><span class="price-old">¥${selected.priceOld}</span><span class="promo">限时立减¥${selected.priceOld - selected.price}</span></div><div class="meta">⭐ ${selected.rating} · ${selected.reviewLevel} · ${selected.salesLevel}</div></div></div><div class="specs-table">${Object.entries(selected.specs).map(([k, v]) => `<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-value">${v}</span></div>`).join('')}</div><div class="review-summary"><span class="label">💬 评价摘要：</span>${selected.reviewSummary}</div><div class="reason"><span class="label">🎯 AI选定理由：</span>${selected.reason}</div></div>`;
+const productHtml = `基于综合分析，已为您选定如下商品：<div class="product-card recommended" style="margin-top: 10px;"><div class="tags">${selected.tags.map(t => `<span class="tag flagship">${t}</span>`).join('')}</div><div class="header-row"><div class="image">${selected.emoji}</div><div class="info"><div class="name">${selected.name}</div><div class="price-row"><span class="price">¥${selected.price}</span><span class="price-old">¥${selected.priceOld}</span><span class="promo">限时立减¥${selected.priceOld - selected.price}</span></div><div class="meta">⭐ ${selected.rating} · ${selected.reviewLevel} · ${selected.salesLevel}</div></div></div><div class="specs-table">${Object.entries(selected.specs).map(([k, v]) => `<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-value">${v}</span></div>`).join('')}</div><div class="review-summary"><span class="label">💬 评价摘要：</span>${selected.reviewSummary}</div><div class="reason"><span class="label">🎯 AI选定理由：</span>${selected.reason}</div></div>`;
 addAIMessage(productHtml, true);
 setTimeout(() => showConfirmButton(), 500);
 }, 800);
@@ -439,11 +440,11 @@ function showCompletionModal(productName) {
 const isHigh = config.autonomy === 'high', elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 console.log('实验数据:', { group: currentGroup, duration: elapsed, selectedProduct: productName, questionsAsked: Array.from(askedQuestions) });
 document.getElementById('modal1Title').innerText = isHigh ? 'AI已为您完成购买决策' : '您已成功完成购买';
-document.getElementById('modal1Message').innerHTML = `已购买：<b>${productName}</b>`;
+document.getElementById('modal1Message').innerHTML = `已购买：${productName}`;
 document.getElementById('modal1').classList.add('active');
 setTimeout(() => {
 document.getElementById('modal1').classList.remove('active');
-document.getElementById('modal2Message').innerHTML = isHigh ? '感谢您体验AI智能购物助手<br>本次购物已<b>自动</b>完成<br>请返回问卷继续作答' : '感谢您使用AI购物信息助手<br>您的购买已完成<br>请返回问卷继续作答';
+document.getElementById('modal2Message').innerHTML = isHigh ? '感谢您体验AI智能购物助手<br>本次购物已自动完成<br>请返回问卷继续作答' : '感谢您使用AI购物信息助手<br>您的购买已完成<br>请返回问卷继续作答';
 document.getElementById('modal2').classList.add('active');
 }, 5000);
 }
