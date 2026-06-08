@@ -210,6 +210,18 @@ body { background: #F3F4F6; color: #1F2937; line-height: 1.6; font-size: 14px; }
 .browse-progress { background: #EFF6FF; padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 12.5px; color: #1E40AF; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 56px; z-index: 40; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
 .browse-progress .progress-text { font-weight: 500; }
 .browse-progress .progress-num { color: #3B82F6; font-weight: 600; }
+  
+/* ============ 按维度排序栏 ============ */
+.sort-bar { background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sort-bar .sort-label { font-size: 12.5px; color: #6B7280; font-weight: 500; flex-shrink: 0; }
+.sort-btn { background: #F9FAFB; color: #4B5563; border: 1px solid #E5E7EB; padding: 6px 12px; border-radius: 16px; cursor: pointer; font-size: 12px; transition: all 0.2s; white-space: nowrap; }
+.sort-btn:hover { background: #EFF6FF; color: #3B82F6; border-color: #BFDBFE; }
+.sort-btn.active { background: #3B82F6; color: white; border-color: #3B82F6; font-weight: 500; }
+
+@media (max-width: 768px) {
+  .sort-bar { padding: 8px 10px; }
+  .sort-btn { padding: 5px 10px; font-size: 11.5px; }
+}
 
 /* ============ 对比浮动条 ============ */
 .compare-floating { position: sticky; bottom: 80px; margin: 0 18px; background: #3B82F6; color: white; padding: 12px 16px; border-radius: 8px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(59,130,246,0.3); z-index: 50; }
@@ -636,7 +648,52 @@ const PRODUCTS = {
     { id: 'p5', name: 'Velours Noir 黑天鹅绒神秘香水', price: 259, priceOld: 299, score: 77, rating: 4.3, reviewLevel: '好评率88%', salesLevel: '个性首选', tags: ['独特个性', '小众首选'], image: placeholderImg('Velours Noir', '1F2937', 'FFFFFF'), thumbnails: [placeholderImg('主图', '1F2937', 'FFFFFF'), placeholderImg('瓶身', '374151', 'FFFFFF'), placeholderImg('喷雾', '4B5563', 'FFFFFF'), placeholderImg('礼盒', '6B7280', 'FFFFFF')], specs: { '香调类型': '神秘木质调', '前调': '黑胡椒、佛手柑、杜松子', '中调': '皮革、烟草、鸢尾', '后调': '檀香、麝香、香根草', '留香时长': '约8小时', '香味浓度': 'EDP(浓香水)', '容量规格': '50ml', '适用季节': '秋冬适用', '适用人群': '男女通用', '产地': '法国' }, reviewSummary: '用户最常提到:独特、有辨识度、不撞香', reason: '神秘个性,辨识度高,适合追求独特表达的用户。', scenarios: [{ title: '夜晚出行', text: '黑胡椒与杜松子的前调,带着一丝凌厉与神秘。它不迎合,只属于愿意被它定义的人。' }, { title: '艺术场合', text: '中调的皮革与烟草,像一本翻开的旧书,带着时间的厚度。适合画展、音乐会等需要表达个性的场景。' }, { title: '独处冥想', text: '后调的檀香与香根草缓缓铺陈,像深夜窗外的雨。它是属于内心的对话,是独特而不孤独的陪伴。' }], reviews: [{ user: '匿名用户', stars: 5, date: '2025-09-04', content: '非常独特的一款,完全不撞香。每次喷都觉得自己有种酷酷的气质。' }, { user: '匿名用户', stars: 4, date: '2025-08-21', content: '小众但很有辨识度,皮革调很特别。不是大众款但喜欢的人会很喜欢。' }, { user: '匿名用户', stars: 4, date: '2025-08-05', content: '香味很特别,第一次用可能需要适应一下。如果喜欢小众调可以入手。' }], faqs: [{ q: '日常通勤能用吗?', asker: '匿名用户', a: '可以,但本款风格偏独特,建议少量使用,避免在密闭办公室空间过浓。' }, { q: '第一次用小众香水推荐这款吗?', asker: '匿名用户', a: '本款风格较为鲜明,建议先在手腕试用半小时后再决定。可先购买小样体验。' }, { q: '留香真实如何?', asker: '匿名用户', a: '留香约8小时,皮革与檀香的尾调较为持久。' }, { q: '会不会显得太成熟?', asker: '匿名用户', a: '风格偏沉稳成熟,适合追求独特表达的用户,年龄差异不大。' }] }
   ]
 };
+  
+// ========== 按维度排序配置 ==========
+const SORT_OPTIONS = {
+  search: [
+    { key: 'default', label: '🏆 综合推荐' },
+    { key: 'noise', label: '🔇 降噪最强' },
+    { key: 'battery', label: '🔋 续航最长' },
+    { key: 'weight', label: '🪶 重量最轻' },
+    { key: 'price', label: '💰 价格低到高' }
+  ],
+  experience: [
+    { key: 'default', label: '🏆 综合推荐' },
+    { key: 'lasting', label: '⏰ 留香最长' },
+    { key: 'rating', label: '⭐ 评分最高' },
+    { key: 'price', label: '💰 价格低到高' }
+  ]
+};
 
+function sortProducts(products, sortKey) {
+  const arr = [...products];
+  switch (sortKey) {
+    case 'noise':
+      return arr.sort((a, b) => {
+        const getDb = p => { const m = p.specs['主动降噪'].match(/-(\d+)dB/); return m ? parseInt(m[1]) : 0; };
+        return getDb(b) - getDb(a);
+      });
+    case 'battery':
+      return arr.sort((a, b) => {
+        const getH = p => { const m = p.specs['续航时长'].match(/(\d+)小时/); return m ? parseInt(m[1]) : 0; };
+        return getH(b) - getH(a);
+      });
+    case 'weight':
+      return arr.sort((a, b) => parseInt(a.specs['整机重量']) - parseInt(b.specs['整机重量']));
+    case 'lasting':
+      return arr.sort((a, b) => {
+        const getH = p => { const m = p.specs['留香时长'].match(/(\d+)小时/); return m ? parseInt(m[1]) : 0; };
+        return getH(b) - getH(a);
+      });
+    case 'rating':
+      return arr.sort((a, b) => b.rating - a.rating);
+    case 'price':
+      return arr.sort((a, b) => a.price - b.price);
+    default:
+      return arr;
+  }
+}
 const PRESET_QA = {
   search: [
     { q: '哪款降噪最强?', a: '5款产品的降噪深度对比:<br><br>1. <b>SoundPro M2 Pro</b>:-42dB(最强)<br>2. TechNova X3 Studio:-38dB<br>3. Aura QE1 Classic:-32dB<br>4. EchoBlu S5:-25dB<br>5. Pulse Mini Air:-20dB<br><br>对降噪有较高要求建议优先考虑前两款。' },
@@ -897,31 +954,63 @@ function showLowAutonomyResponse() {
 
     setTimeout(() => {
       const chat = document.getElementById('chatArea');
+      // 浏览进度提示
       chat.insertAdjacentHTML('beforeend', `<div class="browse-progress"><span class="progress-text">📖 建议您充分浏览各款商品后再做决定</span><span><span class="progress-num" id="browsedCount">0</span> / 5 款已查看</span></div>`);
-      products.forEach(p => {
-        chat.insertAdjacentHTML('beforeend',
-          `<div class="message"><div style="width:36px;flex-shrink:0;"></div><div style="flex:1;max-width:calc(100% - 46px);">
-             <div class="product-card" id="card-${p.id}" onclick="showProductDetail('${p.id}', event, false)">
-               <div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-               <div class="header-row">
-                 <div class="image"><img src="${p.image}" alt="${p.name}"></div>
-                 <div class="info"><div class="name">${p.name}</div>
-                   <div class="price-row"><span class="price">¥${p.price}</span><span class="price-old">¥${p.priceOld}</span></div>
-                   <div class="meta">⭐ ${p.rating} · ${p.reviewLevel}</div></div>
-               </div>
-               <div class="specs-table">${Object.entries(p.specs).slice(0, 4).map(([k, v]) => `<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-value">${v}</span></div>`).join('')}</div>
-               <div class="review-summary"><span class="label">评价:</span>${p.reviewSummary}</div>
-               <div class="action-row">
-                 <button class="action-btn" onclick="event.stopPropagation(); toggleCompare('${p.id}', this)"><span class="check-icon">✓ </span>加入对比</button>
-                 <button class="action-btn" onclick="event.stopPropagation(); showProductDetail('${p.id}', event, false)">📦 查看详情</button>
-               </div>
-               <button class="select-btn" onclick="event.stopPropagation(); tryToSelectProduct('${p.id}', '${p.name.replace(/'/g, '')}')">我选这款</button>
-             </div></div></div>`);
-      });
+      
+      // 排序栏
+      const sortOptions = SORT_OPTIONS[config.product];
+      chat.insertAdjacentHTML('beforeend', `<div class="sort-bar">
+        <span class="sort-label">排序:</span>
+        ${sortOptions.map(opt => `<button class="sort-btn ${opt.key === 'default' ? 'active' : ''}" onclick="changeSort('${opt.key}')">${opt.label}</button>`).join('')}
+      </div>`);
+      
+      // 商品列表容器
+      chat.insertAdjacentHTML('beforeend', '<div id="productListContainer"></div>');
+      
+      // 渲染商品列表(初始为默认排序)
+      renderProductList('default');
+      
       scrollToBottom();
       setTimeout(() => showPresetQuestions(), 500);
     }, 800);
   }, 800);
+}
+
+// 渲染商品列表(支持排序)
+function renderProductList(sortKey) {
+  const products = sortProducts(PRODUCTS[config.product], sortKey);
+  const container = document.getElementById('productListContainer');
+  if (!container) return;
+  
+  container.innerHTML = products.map(p => `
+    <div class="message"><div style="width:36px;flex-shrink:0;"></div><div style="flex:1;max-width:calc(100% - 46px);">
+      <div class="product-card" id="card-${p.id}" onclick="showProductDetail('${p.id}', event, false)">
+        <div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+        <div class="header-row">
+          <div class="image"><img src="${p.image}" alt="${p.name}"></div>
+          <div class="info"><div class="name">${p.name}</div>
+            <div class="price-row"><span class="price">¥${p.price}</span><span class="price-old">¥${p.priceOld}</span></div>
+            <div class="meta">⭐ ${p.rating} · ${p.reviewLevel}</div></div>
+        </div>
+        <div class="specs-table">${Object.entries(p.specs).slice(0, 4).map(([k, v]) => `<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-value">${v}</span></div>`).join('')}</div>
+        <div class="review-summary"><span class="label">评价:</span>${p.reviewSummary}</div>
+        <div class="action-row">
+          <button class="action-btn ${selectedForCompare.has(p.id) ? 'compare-checked' : ''}" onclick="event.stopPropagation(); toggleCompare('${p.id}', this)"><span class="check-icon">✓ </span>加入对比</button>
+          <button class="action-btn" onclick="event.stopPropagation(); showProductDetail('${p.id}', event, false)">📦 查看详情</button>
+        </div>
+        <button class="select-btn" onclick="event.stopPropagation(); tryToSelectProduct('${p.id}', '${p.name.replace(/'/g, '')}')">我选这款</button>
+      </div></div></div>`).join('');
+  
+  // 重新应用"已浏览"标识
+  viewedProducts.forEach(pid => updateViewedBadge(pid));
+}
+
+// 切换排序方式
+function changeSort(sortKey) {
+  document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  renderProductList(sortKey);
+  logAction('change_sort', { sortKey });
 }
 
 function getAnalysisReport(autonomy, product) {
@@ -1035,7 +1124,7 @@ function toggleCompare(productId, btn) {
     selectedForCompare.delete(productId);
     btn.classList.remove('compare-checked');
   } else {
-    if (selectedForCompare.size >= 3) { alert('最多对比3款商品'); return; }
+    if (selectedForCompare.size >= 5) { alert('最多对比5款商品'); return; }
     selectedForCompare.add(productId);
     btn.classList.add('compare-checked');
   }
