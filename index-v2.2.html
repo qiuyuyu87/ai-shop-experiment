@@ -439,19 +439,11 @@ body { background: #F3F4F6; color: #1F2937; line-height: 1.6; font-size: 14px; }
     </div>
 
     <div class="consent-checkboxes">
-      <div class="consent-checkbox-item">
-        <input type="checkbox" id="consent-1" onchange="checkConsentReady()">
-        <label for="consent-1">我已年满 18 周岁，具备独立参与研究的能力</label>
-      </div>
-      <div class="consent-checkbox-item">
-        <input type="checkbox" id="consent-2" onchange="checkConsentReady()">
-        <label for="consent-2">我已仔细阅读上述内容，理解本研究的目的、内容与权利</label>
-      </div>
-      <div class="consent-checkbox-item">
-        <input type="checkbox" id="consent-3" onchange="checkConsentReady()">
-        <label for="consent-3">我自愿同意参与本次研究，并同意以匿名方式提供数据</label>
-      </div>
-    </div>
+  <div class="consent-checkbox-item">
+    <input type="checkbox" id="consent-3" onchange="checkConsentReady()">
+    <label for="consent-3">我已阅读上述内容,自愿同意参与本次研究,并同意以匿名方式提供数据</label>
+  </div>
+</div>
 
     <div class="consent-btn-group">
       <button class="consent-btn consent-btn-quit" onclick="quitStudy()">不同意,退出研究</button>
@@ -731,10 +723,8 @@ function showConsentScreen() {
 }
 
 function checkConsentReady() {
-  const c1 = document.getElementById('consent-1').checked;
-  const c2 = document.getElementById('consent-2').checked;
   const c3 = document.getElementById('consent-3').checked;
-  document.getElementById('consentAgreeBtn').disabled = !(c1 && c2 && c3);
+  document.getElementById('consentAgreeBtn').disabled = !c3;
 }
 
 function agreeConsent() {
