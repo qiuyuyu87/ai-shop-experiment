@@ -744,7 +744,6 @@ body { background:#F8FAFC; color:#1E293B; line-height:1.65; font-size:13px; lett
 
 </div>
 
-</div><!-- /container -->
 <div class="debug-info" id="debugInfo">未选择分组</div>
 
 <script>
@@ -1265,7 +1264,6 @@ function returnToSurvey(){localStorage.setItem('ai_shop_participated_v24',new Da
 function logAction(action,detail={}){actionLog.push({t:startTime?Date.now()-startTime:0,a:action,d:detail});}
 function scrollToBottom(){setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),100);}
 function closeAiAnalysisModal(){document.getElementById('aiAnalysisModal').classList.remove('active');}
-window.onload = initFromURL;
 </script>
 </body>
 </html>
