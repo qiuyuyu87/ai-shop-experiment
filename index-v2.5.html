@@ -610,10 +610,12 @@ body { background:#F8FAFC; color:#1E293B; line-height:1.65; font-size:13px; lett
  <div class="icon-wrap"><div class="icon">🤖</div></div>
  <h2 id="introTitle"></h2>
  <p id="introText"></p>
- <div class="task-preview">
- <div style="font-size:12px;color:#92400E;font-weight:600;margin-bottom:8px;">📦 您的购物任务</div>
- <div id="taskText" style="font-size:13px;color:#1E293B;line-height:1.8;"></div>
- </div>
+<div class="task-preview">
+  <div style="font-size:12px;color:#92400E;font-weight:600;margin-bottom:8px;">📦 您的购物任务</div>
+  <div id="taskText" style="font-size:13px;color:#1E293B;line-height:1.8;white-space:normal;">
+    请根据任务要求完成本次购物选择。
+  </div>
+</div>
  <button class="btn-primary" onclick="startExperiment()">开始购物体验</button>
  </div>
  <div id="mainContent" class="hidden">
@@ -1021,8 +1023,36 @@ function checkConsentReady(){document.getElementById('consentAgreeBtn').disabled
 function agreeConsent(){logAction('consent_agreed');document.getElementById('consentScreen').classList.add('hidden');enterExperiment();}
 function quitStudy(){if(confirm('您确认要退出本次研究吗？')){document.body.innerHTML='<div style="padding:60px 30px;text-align:center;"><h2>感谢您的时间</h2><p style="color:#6B7280;margin-top:14px;">您已退出本次研究。</p></div>';}}
 function manualSelectGroup(group){currentGroup=group;config=CONFIG[group];isAutoAssigned=false;document.getElementById('selectorScreen').classList.add('hidden');showConsentScreen();}
-function enterExperiment(){document.getElementById('experimentScreen').classList.remove('hidden');document.getElementById('introContent').classList.remove('hidden');document.getElementById('mainContent').classList.add('hidden');document.getElementById('modeLabel').document.getElementById('headerTitle').innerText = config.autonomy === 'high' ? 'AI购灵选' : 'AI购参谋';innerText=config.modeLabel;document.getElementById('introTitle').innerText=config.introTitle;document.getElementById('introText').innerHTML=config.introText;document.getElementById('taskText').innerHTML=config.taskText;document.getElementById('taskCardText').innerHTML=config.taskText;document.getElementById('taskCardEmoji').innerText=config.taskEmoji;document.getElementById('chatArea').innerHTML='';document.getElementById('confirmArea').innerHTML='';askedQuestions.clear();selectedForCompare.clear();viewedProducts.clear();hasSelected=false;actionLog=[];viewedProductsWithTime={};highAutonomyRethinkMode=false;window.scrollTo(0,0);logAction('enter_experiment');}
-function backToHome(){if(confirm('确认退出？当前进度将丢失。'))location.reload();}
+function enterExperiment(){
+  document.getElementById('experimentScreen').classList.remove('hidden');
+  document.getElementById('introContent').classList.remove('hidden');
+  document.getElementById('mainContent').classList.add('hidden');
+
+  // 修复：这里原来链式写错了，会导致整个函数报错
+  document.getElementById('headerTitle').innerText =
+    config.autonomy === 'high' ? 'AI 购灵选' : 'AI 购参谋';
+
+  document.getElementById('modeLabel').innerText = config.modeLabel;
+  document.getElementById('introTitle').innerText = config.introTitle;
+  document.getElementById('introText').innerHTML = config.introText;
+
+  // 两处任务说明都明确写入
+  document.getElementById('taskText').innerHTML = config.taskText;
+  document.getElementById('taskCardText').innerHTML = config.taskText;
+  document.getElementById('taskCardEmoji').innerText = config.taskEmoji;
+
+  document.getElementById('chatArea').innerHTML = '';
+  document.getElementById('confirmArea').innerHTML = '';
+  askedQuestions.clear();
+  selectedForCompare.clear();
+  viewedProducts.clear();
+  hasSelected = false;
+  actionLog = [];
+  viewedProductsWithTime = {};
+  highAutonomyRethinkMode = false;
+  window.scrollTo(0,0);
+  logAction('enter_experiment');
+}
 function startExperiment(){document.getElementById('introContent').classList.add('hidden');document.getElementById('mainContent').classList.remove('hidden');startTime=Date.now();logAction('start_experiment');setTimeout(()=>addUserMessage(config.userMsg),500);setTimeout(()=>showAIUnderstanding(),1800);setTimeout(()=>showThinking(),5500);const thinkingDuration=config.autonomy==='high'?6000:5000;setTimeout(()=>showAIResponse(),5500+thinkingDuration);}
 function showAIUnderstanding(){
   const u=AI_UNDERSTAND[config.product];
@@ -1043,7 +1073,136 @@ function addAIMessageTyping(text,callback){const msgId='typing-'+Date.now();docu
 function showThinking(){const isHigh=config.autonomy==='high',isSearch=config.product==='search';const steps=isHigh?(isSearch?['✓ 已基于您的场景需求分析','✓ 已扫描全网2,341款产品','✓ 已综合用户评价23,461条','✓ 已完成多维度综合评估','✓ 已选定最优方案']:['✓ 已基于您的偏好分析','✓ 已扫描全网1,892款产品','✓ 已综合用户评价18,734条','✓ 已完成香调与适配度评估','✓ 已选定最优方案']):(isSearch?['✓ 已基于您的需求筛选商品','✓ 已为您整理5款优质候选','✓ 已汇总详细参数与评价','✓ 信息已就绪，请您挑选']:['✓ 已基于您的需求筛选商品','✓ 已为您整理5款优质候选','✓ 已汇总香调与评价信息','✓ 信息已就绪，请您挑选']);const title=isHigh?'正在为您智能匹配':'正在为您整理候选商品';const cls=isHigh?'high':'low';document.getElementById('chatArea').insertAdjacentHTML('beforeend',`<div class="message" id="thinkingMsg"><div class="avatar ai">AI</div><div class="thinking ${cls}"><div class="title">${title}<span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="progress-bar"><div class="progress-fill ${cls}"></div></div>${steps.map((s,i)=>`<div class="step s${i+1}">${s}</div>`).join('')}</div></div>`);scrollToBottom();}
 function showAIResponse(){document.getElementById('thinkingMsg')?.remove();if(config.autonomy==='high')showHighAutonomyResponse();else showLowAutonomyResponse();}
 
-function generateRadarSVG(productId,productType,size=140,isHighAutonomy=false){const radarInfo=RADAR_DATA[productType];const productRadar=radarInfo.products[productId];const dims=radarInfo.dims;const scores=productRadar.scores;const color=productRadar.color;const n=dims.length;const cx=size/2;const cy=size/2;const r=size*0.36;const labelR=r*1.28;function getPoint(index,radius){const angle=(Math.PI*2*index/n)-Math.PI/2;return{x:cx+radius*Math.cos(angle),y:cy+radius*Math.sin(angle)};}let webLines='';for(let level=1;level<=5;level++){const levelR=r*level/5;const points=[];for(let i=0;i<n;i++){const p=getPoint(i,levelR);points.push(`${p.x},${p.y}`);}webLines+=`<polygon points="${points.join(' ')}" fill="none" stroke="${level===5?'rgba(37,99,235,0.2)':'rgba(37,99,235,0.08)'}" stroke-width="${level===5?1.5:1}"/>`;}let axisLines='';for(let i=0;i<n;i++){const p=getPoint(i,r);axisLines+=`<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="rgba(37,99,235,0.08)" stroke-width="1"/>`;}const dataPoints=[];for(let i=0;i<n;i++){const ratio=scores[i]/100;const p=getPoint(i,r*ratio);dataPoints.push(`${p.x},${p.y}`);}const dataPolygon=`<polygon points="${dataPoints.join(' ')}" fill="${color}" fill-opacity="0.25" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>`;let dotPoints='';for(let i=0;i<n;i++){const ratio=scores[i]/100;const p=getPoint(i,r*ratio);dotPoints+=`<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="white" stroke-width="1.5"/>`;}let labels='';for(let i=0;i<n;i++){const angleDeg=((360*i/n)-90+360)%360;const p=getPoint(i,labelR);let anchor='middle';if(angleDeg<90||angleDeg>270)anchor='start';else if(angleDeg>90&&angleDeg<270)anchor='end';labels+=`<text x="${p.x}" y="${p.y}" text-anchor="${anchor}" dominant-baseline="middle" font-size="8" fill="#64748B" font-family="Inter,PingFang SC,sans-serif">${dims[i]}</text>`;}return`<svg width="${size+40}" height="${size+40}" viewBox="0 0 ${size+40} ${size+40}" class="radar-svg">${webLines}${axisLines}${dataPolygon}${dotPoints}${labels}</svg>`;}
+function generateRadarSVG(productId, productType, size = 170, isHighAutonomy = false) {
+  const radarInfo = RADAR_DATA[productType];
+  const productRadar = radarInfo.products[productId];
+  const dims = radarInfo.dims;
+  const scores = productRadar.scores;
+  const color = productRadar.color;
+  const n = dims.length;
+
+  // 画布整体增大，给文字留白
+  const padding = 34;
+  const svgSize = size + padding * 2;
+  const cx = svgSize / 2;
+  const cy = svgSize / 2;
+
+  // 雷达本体缩小，避免文字顶边
+  const r = size * 0.30;
+  const labelR = r * 1.38;
+
+  function getPoint(index, radius) {
+    const angle = (Math.PI * 2 * index / n) - Math.PI / 2;
+    return {
+      x: cx + radius * Math.cos(angle),
+      y: cy + radius * Math.sin(angle)
+    };
+  }
+
+  // 长标签换行
+  function formatLabel(text) {
+    const map = {
+      '降噪效果': ['降噪', '效果'],
+      '续航能力': ['续航', '能力'],
+      '佩戴舒适': ['佩戴', '舒适'],
+      '音质表现': ['音质', '表现'],
+      '香调适配': ['香调', '适配'],
+      '留香持久': ['留香', '持久'],
+      '季节适配': ['季节', '适配'],
+      '口碑评价': ['口碑', '评价'],
+      '独特个性': ['独特', '个性'],
+      '通话质量': ['通话', '质量']
+    };
+    return map[text] || [text];
+  }
+
+  let webLines = '';
+  for (let level = 1; level <= 5; level++) {
+    const levelR = r * level / 5;
+    const points = [];
+    for (let i = 0; i < n; i++) {
+      const p = getPoint(i, levelR);
+      points.push(`${p.x},${p.y}`);
+    }
+    webLines += `<polygon points="${points.join(' ')}" fill="none" stroke="${level === 5 ? 'rgba(37,99,235,0.2)' : 'rgba(37,99,235,0.08)'}" stroke-width="${level === 5 ? 1.5 : 1}"/>`;
+  }
+
+  let axisLines = '';
+  for (let i = 0; i < n; i++) {
+    const p = getPoint(i, r);
+    axisLines += `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="rgba(37,99,235,0.08)" stroke-width="1"/>`;
+  }
+
+  const dataPoints = [];
+  for (let i = 0; i < n; i++) {
+    const ratio = scores[i] / 100;
+    const p = getPoint(i, r * ratio);
+    dataPoints.push(`${p.x},${p.y}`);
+  }
+
+  const dataPolygon = `<polygon points="${dataPoints.join(' ')}" fill="${color}" fill-opacity="0.25" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>`;
+
+  let dotPoints = '';
+  for (let i = 0; i < n; i++) {
+    const ratio = scores[i] / 100;
+    const p = getPoint(i, r * ratio);
+    dotPoints += `<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="${color}" stroke="white" stroke-width="1.5"/>`;
+  }
+
+  let labels = '';
+  for (let i = 0; i < n; i++) {
+    const p = getPoint(i, labelR);
+    const lines = formatLabel(dims[i]);
+
+    let anchor = 'middle';
+    if (p.x > cx + 8) anchor = 'start';
+    if (p.x < cx - 8) anchor = 'end';
+
+    if (lines.length === 1) {
+      labels += `
+        <text
+          x="${p.x}"
+          y="${p.y}"
+          text-anchor="${anchor}"
+          dominant-baseline="middle"
+          font-size="11"
+          fill="#64748B"
+          font-family="Inter,PingFang SC,sans-serif"
+        >${lines[0]}</text>
+      `;
+    } else {
+      labels += `
+        <text
+          x="${p.x}"
+          y="${p.y - 7}"
+          text-anchor="${anchor}"
+          font-size="11"
+          fill="#64748B"
+          font-family="Inter,PingFang SC,sans-serif"
+        >
+          <tspan x="${p.x}" dy="0">${lines[0]}</tspan>
+          <tspan x="${p.x}" dy="13">${lines[1]}</tspan>
+        </text>
+      `;
+    }
+  }
+
+  return `
+    <svg
+      width="${svgSize}"
+      height="${svgSize}"
+      viewBox="0 0 ${svgSize} ${svgSize}"
+      class="radar-svg"
+      style="display:block;margin:0 auto;"
+    >
+      ${webLines}
+      ${axisLines}
+      ${dataPolygon}
+      ${dotPoints}
+      ${labels}
+    </svg>
+  `;
+}
 
 function buildHighAutonomyVerdictCard(productId,productType){const radarInfo=RADAR_DATA[productType];const productData=radarInfo.products[productId];const dims=radarInfo.dims;const scores=productData.scores;const color=productData.color;const dimBars=dims.map((dim,i)=>{const score=scores[i];let levelText=score>=90?'优秀':score>=80?'良好':score>=70?'适中':'一般';return`<div class="verdict-dim-item"><span class="verdict-dim-label">${dim}</span><div class="verdict-dim-bar-bg"><div class="verdict-dim-bar-fill" style="width:${score}%;background:${color};"></div></div><span class="verdict-dim-score" style="color:${color};">${levelText}</span></div>`;}).join('');const suitableTags=productData.suitable.map(s=>`<span class="eval-suitable-tag">√ ${s}</span>`).join('');return`<div class="ai-verdict-card"><div class="ai-verdict-header"><span class="verdict-icon">🎯</span><div><div class="verdict-title">AI综合评估结论</div><div class="verdict-sub">基于6项核心维度的智能评估 · 已为您完成选择</div></div></div><div class="ai-verdict-body"><div class="ai-verdict-radar">${generateRadarSVG(productId,productType,180,true)}</div><div class="ai-verdict-text"><div class="verdict-dimension-list">${dimBars}</div><div class="verdict-conclusion"><div class="conclusion-label">📌 AI判断</div>${productData.summary}<div style="margin-top:8px;">${suitableTags}</div></div></div></div><div class="verdict-action-hint">💡 AI已基于以上评估为您做出最优选择，您可直接确认下单</div></div>`;}
 
@@ -1143,15 +1302,91 @@ function toggleCompare(productId,btn){if(selectedForCompare.has(productId)){sele
 function updateCompareFloating(){const floating=document.getElementById('compareFloating');document.getElementById('compareCount').innerText=selectedForCompare.size;if(selectedForCompare.size>=2)floating.classList.add('show');else floating.classList.remove('show');}
 
 function tryToSelectProduct(id,name){if(hasSelected){alert('已选择商品，无法重复选择');return;}pendingSelectId=id;confirmSelect();}
-function generateMultiRadarSVG(products,productType){const rd=RADAR_DATA[productType];const dims=rd.dims;const n=dims.length;const size=220;const cx=size/2,cy=size/2,r=75;const angleStep=Math.PI*2/n;let svg=`<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="display:block;margin:0 auto 16px;">`;// 背景网格
-for(let ring=1;ring<=4;ring++){const pts=dims.map((_,i)=>{const a=i*angleStep-Math.PI/2;const rr=r*ring/4;return(cx+rr*Math.cos(a)).toFixed(1)+','+(cy+rr*Math.sin(a)).toFixed(1);}).join(' ');svg+=`<polygon points="${pts}" fill="none" stroke="#E2E8F0" stroke-width="1"/>`;}
-// 轴线
-dims.forEach((_,i)=>{const a=i*angleStep-Math.PI/2;svg+=`<line x1="${cx}" y1="${cy}" x2="${(cx+r*Math.cos(a)).toFixed(1)}" y2="${(cy+r*Math.sin(a)).toFixed(1)}" stroke="#E2E8F0" stroke-width="1"/>`;});
-// 每个产品的多边形
-products.forEach((p)=>{const scores=rd.products[p.id].scores;const color=rd.products[p.id].color;const pts=scores.map((s,i)=>{const a=i*angleStep-Math.PI/2;const rr=r*s/100;return(cx+rr*Math.cos(a)).toFixed(1)+','+(cy+rr*Math.sin(a)).toFixed(1);}).join(' ');svg+=`<polygon points="${pts}" fill="${color}" fill-opacity="0.12" stroke="${color}" stroke-width="1.8"/>`;scores.forEach((s,i)=>{const a=i*angleStep-Math.PI/2;const rr=r*s/100;svg+=`<circle cx="${(cx+rr*Math.cos(a)).toFixed(1)}" cy="${(cy+rr*Math.sin(a)).toFixed(1)}" r="3" fill="${color}"/>`;});});
-// 标签
-dims.forEach((dim,i)=>{const a=i*angleStep-Math.PI/2;const lx=cx+(r+20)*Math.cos(a);const ly=cy+(r+20)*Math.sin(a);const anchor=Math.abs(Math.cos(a))<0.1?'middle':Math.cos(a)>0?'start':'end';svg+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="9" fill="#64748B" text-anchor="${anchor}" dominant-baseline="middle">${dim}</text>`;});
-svg+='</svg>';return svg;}
+function generateMultiRadarSVG(products, productType) {
+  const rd = RADAR_DATA[productType];
+  const dims = rd.dims;
+  const n = dims.length;
+
+  const size = 260;
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = 78;
+  const labelR = r + 24;
+  const angleStep = Math.PI * 2 / n;
+
+  function formatLabel(text) {
+    const map = {
+      '降噪效果': ['降噪', '效果'],
+      '续航能力': ['续航', '能力'],
+      '佩戴舒适': ['佩戴', '舒适'],
+      '音质表现': ['音质', '表现'],
+      '香调适配': ['香调', '适配'],
+      '留香持久': ['留香', '持久'],
+      '季节适配': ['季节', '适配'],
+      '口碑评价': ['口碑', '评价'],
+      '独特个性': ['独特', '个性'],
+      '通话质量': ['通话', '质量']
+    };
+    return map[text] || [text];
+  }
+
+  let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="display:block;margin:0 auto 16px;">`;
+
+  for (let ring = 1; ring <= 4; ring++) {
+    const pts = dims.map((_, i) => {
+      const a = i * angleStep - Math.PI / 2;
+      const rr = r * ring / 4;
+      return (cx + rr * Math.cos(a)).toFixed(1) + ',' + (cy + rr * Math.sin(a)).toFixed(1);
+    }).join(' ');
+    svg += `<polygon points="${pts}" fill="none" stroke="#E2E8F0" stroke-width="1"/>`;
+  }
+
+  dims.forEach((_, i) => {
+    const a = i * angleStep - Math.PI / 2;
+    svg += `<line x1="${cx}" y1="${cy}" x2="${(cx + r * Math.cos(a)).toFixed(1)}" y2="${(cy + r * Math.sin(a)).toFixed(1)}" stroke="#E2E8F0" stroke-width="1"/>`;
+  });
+
+  products.forEach((p) => {
+    const scores = rd.products[p.id].scores;
+    const color = rd.products[p.id].color;
+    const pts = scores.map((s, i) => {
+      const a = i * angleStep - Math.PI / 2;
+      const rr = r * s / 100;
+      return (cx + rr * Math.cos(a)).toFixed(1) + ',' + (cy + rr * Math.sin(a)).toFixed(1);
+    }).join(' ');
+    svg += `<polygon points="${pts}" fill="${color}" fill-opacity="0.12" stroke="${color}" stroke-width="1.8"/>`;
+    scores.forEach((s, i) => {
+      const a = i * angleStep - Math.PI / 2;
+      const rr = r * s / 100;
+      svg += `<circle cx="${(cx + rr * Math.cos(a)).toFixed(1)}" cy="${(cy + rr * Math.sin(a)).toFixed(1)}" r="3" fill="${color}"/>`;
+    });
+  });
+
+  dims.forEach((dim, i) => {
+    const a = i * angleStep - Math.PI / 2;
+    const lx = cx + labelR * Math.cos(a);
+    const ly = cy + labelR * Math.sin(a);
+    const lines = formatLabel(dim);
+
+    let anchor = 'middle';
+    if (lx > cx + 8) anchor = 'start';
+    if (lx < cx - 8) anchor = 'end';
+
+    if (lines.length === 1) {
+      svg += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="10" fill="#64748B" text-anchor="${anchor}" dominant-baseline="middle">${lines[0]}</text>`;
+    } else {
+      svg += `
+        <text x="${lx.toFixed(1)}" y="${(ly - 6).toFixed(1)}" font-size="10" fill="#64748B" text-anchor="${anchor}">
+          <tspan x="${lx.toFixed(1)}" dy="0">${lines[0]}</tspan>
+          <tspan x="${lx.toFixed(1)}" dy="12">${lines[1]}</tspan>
+        </text>
+      `;
+    }
+  });
+
+  svg += '</svg>';
+  return svg;
+}
 
 function showCompareModal(){behaviorLog.push({type:'showCompare',count:selectedForCompare.size,time:Date.now()});const products=PRODUCTS[config.product].filter(p=>selectedForCompare.has(p.id));const isSearch=config.product==='search';const specKeys=isSearch?['蓝牙版本','续航时长','主动降噪','整机重量','充电方式','通话降噪','折叠收纳']:['香调类型','前调','中调','后调','留香时长','香味浓度','容量规格','适用季节'];
 // 多线雷达图
