@@ -570,31 +570,31 @@ body { background:#F8FAFC; color:#1E293B; line-height:1.65; font-size:13px; lett
  <div class="dev-note">正式实验时，参与者通过分组URL进入，会自动跳过此页面直接看到知情同意书</div>
  <button class="group-btn" onclick="manualSelectGroup('high-search')">
  <div class="label"><span class="badge high">高自主性</span><span class="badge search">搜索品</span></div>
- <div class="name">实验组1：智能购物代理 + 头戴式耳机</div>
- <div class="desc">AI替您完成决策 · 推荐1款最优解 · 含综合评估报告</div>
- </button>
- <button class="group-btn" onclick="manualSelectGroup('low-search')">
+ <div class="name">实验组1：AI购灵选 × 头戴式耳机</div>
+ <div class="desc">AI为您完成优选决策 · 推荐1款更优选择 · 含综合评估结果</div>
+</button>
+<button class="group-btn" onclick="manualSelectGroup('low-search')">
  <div class="label"><span class="badge low">低自主性</span><span class="badge search">搜索品</span></div>
- <div class="name">实验组2：购物信息助手 + 头戴式耳机</div>
- <div class="desc">AI辅助您决策 · 提供5款候选 · 含多维参考评估</div>
- </button>
- <button class="group-btn" onclick="manualSelectGroup('high-exp')">
+ <div class="name">实验组2：AI购参谋 × 头戴式耳机</div>
+ <div class="desc">AI辅助您进行信息比较 · 提供5款候选商品 · 含多维参考评估</div>
+</button>
+<button class="group-btn" onclick="manualSelectGroup('high-exp')">
  <div class="label"><span class="badge high">高自主性</span><span class="badge exp">体验品</span></div>
- <div class="name">实验组3：智能购物代理 + 香水</div>
- <div class="desc">AI替您完成决策 · 推荐1款最优解 · 含综合评估报告</div>
- </button>
- <button class="group-btn" onclick="manualSelectGroup('low-exp')">
+ <div class="name">实验组3：AI购灵选 × 香水</div>
+ <div class="desc">AI为您完成优选决策 · 推荐1款更优选择 · 含综合评估结果</div>
+</button>
+<button class="group-btn" onclick="manualSelectGroup('low-exp')">
  <div class="label"><span class="badge low">低自主性</span><span class="badge exp">香水</span></div>
- <div class="name">实验组4：购物信息助手 + 香水</div>
- <div class="desc">AI辅助您决策 · 提供5款候选 · 含多维参考评估</div>
- </button>
+ <div class="name">实验组4：AI购参谋 × 香水</div>
+ <div class="desc">AI辅助您进行信息比较 · 提供5款候选商品 · 含多维参考评估</div>
+</button>
 </div>
 
 <!-- ============ 实验主页 ============ -->
 <div id="experimentScreen" class="hidden">
  <div class="header">
  <span class="logo">🛒</span>
- <span class="title">AI购物助手</span>
+ <span class="title" id="headerTitle">AI购物助手</span>
  <span class="subtitle" id="modeLabel"></span>
  <button class="back-btn" onclick="backToHome()">← 退出</button>
  </div>
@@ -753,40 +753,40 @@ body { background:#F8FAFC; color:#1E293B; line-height:1.65; font-size:13px; lett
 
 const CONFIG = {
  'high-search': {
- autonomy: 'high', product: 'search', minStayTime: 25,
- introTitle: '欢迎使用AI智能购物助手',
- introText: '本助手将<strong>代您完成</strong>商品的综合分析、筛选与决策。您只需确认结果即可。',
- modeLabel: '— 智能购物代理 —',
- taskEmoji: '🎧',
- taskText: '最近你发现旧耳机用起来不太顺手——地铁通勤时噪音太大，办公时戴久了耳朵也累。你打算趁这个周末入手一副新的头戴式耳机，预算约300元。<br><br>希望它能满足：<b>通勤降噪、长时间办公舒适、续航持久</b>。',
- userMsg: '我想买一副头戴式耳机，预算约300元，主要用于通勤、办公场景。我比较看重降噪效果、佩戴舒适、续航持久，希望能符合我的日常使用需求。'
+  autonomy: 'high', product: 'search', minStayTime: 25,
+  introTitle: '欢迎使用 AI购灵选',
+  introText: '本工具将<strong>代您完成</strong>商品的综合分析、筛选与决策，帮助您快速锁定更合适的选择。',
+  modeLabel: '— AI购灵选 —',
+  taskEmoji: '🎧',
+  taskText: '最近你发现旧耳机用起来不太顺手——地铁通勤时噪音太大，办公时戴久了耳朵也累。你打算趁这个周末入手一副新的头戴式耳机，预算约300元。<br><br>希望它能满足：<b>通勤降噪、长时间办公舒适、续航持久</b>。',
+  userMsg: '我想买一副头戴式耳机，预算约300元，主要用于通勤、办公场景。我比较看重降噪效果、佩戴舒适、续航持久，希望能符合我的日常使用需求。'
  },
  'low-search': {
- autonomy: 'low', product: 'search', minStayTime: 45,
- introTitle: '欢迎使用AI购物信息助手',
- introText: '本助手将<strong>协助您完成</strong>商品的信息整理与对比。最终选择由您来决定。',
- modeLabel: '— 购物信息助手 —',
- taskEmoji: '🎧',
- taskText: '最近你发现旧耳机用起来不太顺手——地铁通勤时噪音太大，办公时戴久了耳朵也累。你打算趁这个周末入手一副新的头戴式耳机，预算约300元。<br><br>希望它能满足：<b>通勤降噪、长时间办公舒适、续航持久</b>。',
- userMsg: '我想买一副头戴式耳机，预算约300元，主要用于通勤、办公场景。我比较看重降噪效果、佩戴舒适、续航持久，希望能符合我的日常使用需求。'
+  autonomy: 'low', product: 'search', minStayTime: 45,
+  introTitle: '欢迎使用 AI购参谋',
+  introText: '本工具将<strong>协助您完成</strong>商品的信息整理与对比，帮助您更高效地进行判断与选择。',
+  modeLabel: '— AI购参谋 —',
+  taskEmoji: '🎧',
+  taskText: '最近你发现旧耳机用起来不太顺手——地铁通勤时噪音太大，办公时戴久了耳朵也累。你打算趁这个周末入手一副新的头戴式耳机，预算约300元。<br><br>希望它能满足：<b>通勤降噪、长时间办公舒适、续航持久</b>。',
+  userMsg: '我想买一副头戴式耳机，预算约300元，主要用于通勤、办公场景。我比较看重降噪效果、佩戴舒适、续航持久，希望能符合我的日常使用需求。'
  },
  'high-exp': {
- autonomy: 'high', product: 'experience', minStayTime: 25,
- introTitle: '欢迎使用AI智能购物助手',
- introText: '本助手将<strong>代您完成</strong>商品的综合分析、筛选与决策。您只需确认结果即可。',
- modeLabel: '— 智能购物代理 —',
- taskEmoji: '🌸',
- taskText: '最近你想给自己添置一瓶新香水——平时上班可以用，偶尔约会、聚会也能撑场面。预算约300元，希望找到一款适合自己气质的。<br><br>希望它能满足：<b>清新自然、四季百搭、契合个人风格</b>。',
- userMsg: '我想买一瓶香水，预算约300元，主要用于日常通勤、约会社交场景。我偏好清新自然、温暖优雅、四季百搭的风格，希望能契合我的个人气质。'
+  autonomy: 'high', product: 'experience', minStayTime: 25,
+  introTitle: '欢迎使用 AI购灵选',
+  introText: '本工具将<strong>代您完成</strong>商品的综合分析、筛选与决策，帮助您快速锁定更合适的选择。',
+  modeLabel: '— AI购灵选 —',
+  taskEmoji: '🌸',
+  taskText: '最近你想给自己添置一瓶新香水——平时上班可以用，偶尔约会、聚会也能撑场面。预算约300元，希望找到一款适合自己气质的。<br><br>希望它能满足：<b>清新自然、四季百搭、契合个人风格</b>。',
+  userMsg: '我想买一瓶香水，预算约300元，主要用于日常通勤、约会社交场景。我偏好清新自然、温暖优雅、四季百搭的风格，希望能契合我的个人气质。'
  },
  'low-exp': {
- autonomy: 'low', product: 'experience', minStayTime: 45,
- introTitle: '欢迎使用AI购物信息助手',
- introText: '本助手将<strong>协助您完成</strong>商品的信息整理与对比。最终选择由您来决定。',
- modeLabel: '— 购物信息助手 —',
- taskEmoji: '🌸',
- taskText: '最近你想给自己添置一瓶新香水——平时上班可以用，偶尔约会、聚会也能撑场面。预算约300元，希望找到一款适合自己气质的。<br><br>希望它能满足：<b>清新自然、四季百搭、契合个人风格</b>。',
- userMsg: '我想买一瓶香水，预算约300元，主要用于日常通勤、约会社交场景。我偏好清新自然、温暖优雅、四季百搭的风格，希望能契合我的个人气质。'
+  autonomy: 'low', product: 'experience', minStayTime: 45,
+  introTitle: '欢迎使用 AI购参谋',
+  introText: '本工具将<strong>协助您完成</strong>商品的信息整理与对比，帮助您更高效地进行判断与选择。',
+  modeLabel: '— AI购参谋 —',
+  taskEmoji: '🌸',
+  taskText: '最近你想给自己添置一瓶新香水——平时上班可以用，偶尔约会、聚会也能撑场面。预算约300元，希望找到一款适合自己气质的。<br><br>希望它能满足：<b>清新自然、四季百搭、契合个人风格</b>。',
+  userMsg: '我想买一瓶香水，预算约300元，主要用于日常通勤、约会社交场景。我偏好清新自然、温暖优雅、四季百搭的风格，希望能契合我的个人气质。'
  }
 };
 
@@ -796,10 +796,10 @@ const AI_UNDERSTAND = {
 };
 
 const SURVEY_URLS = {
- 'high-search': 'https://www.wjx.cn/vm/您的问卷ID-1.aspx',
- 'low-search': 'https://www.wjx.cn/vm/您的问卷ID-2.aspx',
- 'high-exp': 'https://www.wjx.cn/vm/您的问卷ID-3.aspx',
- 'low-exp': 'https://www.wjx.cn/vm/您的问卷ID-4.aspx'
+ 'high-search': 'https://v.wjx.cn/vm/Qj0A4jw.aspx# ',
+ 'low-search': 'https://v.wjx.cn/vm/Qj0A4jw.aspx# ',
+ 'high-exp': 'https://v.wjx.cn/vm/Qj0A4jw.aspx# ',
+ 'low-exp': 'https://v.wjx.cn/vm/Qj0A4jw.aspx# '
 };
 
 /* ⑨ 改写后的placeholderImg：返回SVG data URL */
@@ -1021,7 +1021,7 @@ function checkConsentReady(){document.getElementById('consentAgreeBtn').disabled
 function agreeConsent(){logAction('consent_agreed');document.getElementById('consentScreen').classList.add('hidden');enterExperiment();}
 function quitStudy(){if(confirm('您确认要退出本次研究吗？')){document.body.innerHTML='<div style="padding:60px 30px;text-align:center;"><h2>感谢您的时间</h2><p style="color:#6B7280;margin-top:14px;">您已退出本次研究。</p></div>';}}
 function manualSelectGroup(group){currentGroup=group;config=CONFIG[group];isAutoAssigned=false;document.getElementById('selectorScreen').classList.add('hidden');showConsentScreen();}
-function enterExperiment(){document.getElementById('experimentScreen').classList.remove('hidden');document.getElementById('introContent').classList.remove('hidden');document.getElementById('mainContent').classList.add('hidden');document.getElementById('modeLabel').innerText=config.modeLabel;document.getElementById('introTitle').innerText=config.introTitle;document.getElementById('introText').innerHTML=config.introText;document.getElementById('taskText').innerHTML=config.taskText;document.getElementById('taskCardText').innerHTML=config.taskText;document.getElementById('taskCardEmoji').innerText=config.taskEmoji;document.getElementById('chatArea').innerHTML='';document.getElementById('confirmArea').innerHTML='';askedQuestions.clear();selectedForCompare.clear();viewedProducts.clear();hasSelected=false;actionLog=[];viewedProductsWithTime={};highAutonomyRethinkMode=false;window.scrollTo(0,0);logAction('enter_experiment');}
+function enterExperiment(){document.getElementById('experimentScreen').classList.remove('hidden');document.getElementById('introContent').classList.remove('hidden');document.getElementById('mainContent').classList.add('hidden');document.getElementById('modeLabel').document.getElementById('headerTitle').innerText = config.autonomy === 'high' ? 'AI购灵选' : 'AI购参谋';innerText=config.modeLabel;document.getElementById('introTitle').innerText=config.introTitle;document.getElementById('introText').innerHTML=config.introText;document.getElementById('taskText').innerHTML=config.taskText;document.getElementById('taskCardText').innerHTML=config.taskText;document.getElementById('taskCardEmoji').innerText=config.taskEmoji;document.getElementById('chatArea').innerHTML='';document.getElementById('confirmArea').innerHTML='';askedQuestions.clear();selectedForCompare.clear();viewedProducts.clear();hasSelected=false;actionLog=[];viewedProductsWithTime={};highAutonomyRethinkMode=false;window.scrollTo(0,0);logAction('enter_experiment');}
 function backToHome(){if(confirm('确认退出？当前进度将丢失。'))location.reload();}
 function startExperiment(){document.getElementById('introContent').classList.add('hidden');document.getElementById('mainContent').classList.remove('hidden');startTime=Date.now();logAction('start_experiment');setTimeout(()=>addUserMessage(config.userMsg),500);setTimeout(()=>showAIUnderstanding(),1800);setTimeout(()=>showThinking(),5500);const thinkingDuration=config.autonomy==='high'?6000:5000;setTimeout(()=>showAIResponse(),5500+thinkingDuration);}
 function showAIUnderstanding(){
