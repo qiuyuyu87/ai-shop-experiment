@@ -1400,7 +1400,19 @@ function closeCompareModal(){document.getElementById('compareModal').classList.r
 function tryToSelectProduct(id,name){if(hasSelected)return;const elapsed=(Date.now()-startTime)/1000;if(elapsed<config.minStayTime){alert(`请先充分浏览各款产品信息后再做选择（建议至少浏览${config.minStayTime}秒）`);return;}pendingSelectId=id;document.getElementById('confirmProductName').innerText=name;document.getElementById('confirmSelectModal').classList.add('active');document.getElementById('confirmSelectModal').style.display='flex';logAction('try_select',{productId:id});}
 function cancelSelect(){pendingSelectId=null;document.getElementById('confirmSelectModal').classList.remove('active');document.getElementById('confirmSelectModal').style.display='none';}
 function confirmSelect(){if(hasSelected||!pendingSelectId)return;const product=PRODUCTS[config.product].find(p=>p.id===pendingSelectId);document.getElementById('confirmSelectModal').classList.remove('active');document.getElementById('confirmSelectModal').style.display='none';hasSelected=true;lastSelectedProduct=product.name;behaviorLog.push({type:'confirmSelect',productId:pendingSelectId,time:Date.now()});logAction('confirm_select',{productId:pendingSelectId});showCompletionModal(product.name);}
-function showConfirmButton(){const isHigh=config.autonomy==='high',isRound2=window.highAutonomyRethinkMode;const confirmBtnLabel=isRound2?'✓ 确认本轮推荐':'✓ 确认下单';const confirmBtnSub=isRound2?'（基于您的偏好重新推荐）':'（AI已为您选定最优）';const backBtn=isRound2?'<div style="text-align:center;margin-top:10px;"><button onclick="backToRound1()" style="background:none;border:none;color:#94A3B8;font-size:12px;cursor:pointer;text-decoration:underline;">← 我更倾向第一次推荐的商品</button></div>':'';document.getElementById('confirmArea').innerHTML=`<div class="confirm-area"><div class="confirm-btn-group"><button class="confirm-btn" id="confirmBtn" onclick="confirmOrder()" disabled>${confirmBtnLabel}<span class="btn-sub">${confirmBtnSub}</span></button><button class="rethink-btn" onclick="openRethinkModal()">我要自己挑选</button></div>${backBtn}<div class="status-hint" id="statusHint">正在为您准备...</div></div>`;startCountdown();}
+function showConfirmButton(){
+  document.getElementById('confirmArea').innerHTML=`
+    <div class="confirm-area">
+      <div class="confirm-btn-group">
+        <button class="confirm-btn" id="confirmBtn" onclick="confirmOrder()" disabled>
+          ✓ 确认下单
+          <span class="btn-sub">（AI 已为您选定最优）</span>
+        </button>
+      </div>
+      <div class="status-hint" id="statusHint">正在为您准备...</div>
+    </div>`;
+  startCountdown();
+}
 function startCountdown(){const btn=document.getElementById('confirmBtn');const hint=document.getElementById('statusHint');const timer=setInterval(()=>{const elapsed=(Date.now()-startTime)/1000;if(elapsed>=config.minStayTime){btn.disabled=false;hint.innerText='✓ 您可以确认下单';hint.style.color='#10B981';clearInterval(timer);}else{const remain=Math.ceil(config.minStayTime-elapsed);hint.innerText=`请先充分了解推荐信息...（${remain}秒后可确认）`;}},300);}
 function openRethinkModal(){
   const modal=document.getElementById('rethinkModal');
